@@ -6,6 +6,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 
+// Forzando la resubida para Vercel
 // --- DEFINICIONES DE DATOS: CONSTANTES ---
 const COLOMBIAN_CITIES = [
   'Bogotá D.C.', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena', 'Cúcuta', 
