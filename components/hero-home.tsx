@@ -1,41 +1,38 @@
+// RUTA: components/HeroHome.tsx
+// ESTADO: CORREGIDO (Arreglo de estilos en 'Ver Casos')
+
 "use client";
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Link from 'next/link'; // 1. Importamos Link para la navegación
-
-// (Las importaciones del video siguen comentadas)
-// import VideoThumb from "@/public/images/hero-image-01.jpg";
-// import ModalVideo from "@/components/modal-video";
+import Link from 'next/link';
 
 export default function HeroHome() {
   return (
     <section className="relative">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        {/* Contenido principal */}
         <div className="py-12 md:py-20">
-          {/* Encabezado */}
-          <div className="pb-12 text-center md:pb-20">
-            <h1
-              className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,var(--color-indigo-200),var(--color-gray-50),var(--color-indigo-300))] bg-[length:200%_auto] bg-clip-text pb-5 font-nacelle text-4xl font-semibold text-transparent md:text-5xl"
-              data-aos="fade-up"
-            >
-              Tu aliado legal inteligente
-            </h1>
-            <div className="mx-auto max-w-3xl">
-              <p
-                className="mb-8 text-xl text-indigo-200/65 leading-relaxed"
-                data-aos="fade-up"
-                data-aos-delay={200}
-              >
-                KippiLex utiliza inteligencia artificial para comprender tu caso,
-                encontrar al abogado ideal y simplificar tu proceso legal con
-                transparencia, rapidez y confianza.
-              </p>
+          {/* ... (Tu encabezado de HeroHome) ... */}
+           <div className="pb-12 text-center md:pb-20">
+             <h1
+               className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,var(--color-indigo-200),var(--color-gray-50),var(--color-indigo-300))] bg-[length:200%_auto] bg-clip-text pb-5 font-nacelle text-4xl font-semibold text-transparent md:text-5xl"
+               data-aos="fade-up"
+             >
+               Tu aliado legal inteligente
+             </h1>
+             <div className="mx-auto max-w-3xl">
+               <p
+                 className="mb-8 text-xl text-indigo-200/65 leading-relaxed"
+                 data-aos="fade-up"
+                 data-aos-delay={200}
+               >
+                 KippiLex utiliza inteligencia artificial para comprender tu caso,
+                 encontrar al abogado ideal y simplificar tu proceso legal con
+                 transparencia, rapidez y confianza.
+               </p>
+          
               <div className="mx-auto max-w-xs sm:flex sm:max-w-none sm:justify-center">
                 
-                {/* --- INICIO DE LA EDICIÓN DE BOTONES --- */}
-
                 {/* Botón 1: "Comenzar ahora" -> /signup */}
                 <div data-aos="fade-up" data-aos-delay={400}>
                   <motion.div
@@ -44,13 +41,13 @@ export default function HeroHome() {
                       boxShadow: "0 0 25px rgba(99,102,241,0.6)",
                     }}
                     whileTap={{ scale: 0.97 }}
-                    transition={{ duration: 0 }}
+                    transition={{ duration: 0.2 }}
                   >
                     <Link
                       className="btn group mb-4 w-full bg-gradient-to-t from-indigo-600 to-indigo-500 text-white shadow-lg rounded-full sm:mb-0 sm:w-auto"
-                      href="/signup" // 2. CORREGIDO: Apunta a /signup
+                      href="/signup"
                     >
-                      <span className="relative inline-flex items-center">
+                      <span className="relative inline-flex items-center px-4 py-2">
                         Comenzar ahora
                         <span className="ml-1 tracking-normal text-white/50 transition-transform group-hover:translate-x-0.5">
                           →
@@ -60,26 +57,25 @@ export default function HeroHome() {
                   </motion.div>
                 </div>
                 
-                {/* Botón 2: "Registrarse" -> "Ver Casos" -> /casos */}
+                {/* Botón 2: "Ver Casos" -> /casos */}
                 <div data-aos="fade-up" data-aos-delay={600}>
+                  {/* --- CORRECCIÓN DE ESTILO --- */}
+                  {/* Quité el 'bg-gradient-to-b' que causaba el fondo negro en hover */}
                   <motion.div
-                    whileHover={{
-                      scale: 1.05,
-                      boxShadow: "0 0 25px rgba(129,140,248,0.5)",
-                    }}
+                    whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.97 }}
-                    transition={{ duration: 0 }}
+                    transition={{ duration: 0.2 }}
                   >
                     <Link
-                      className="btn relative w-full bg-gradient-to-b from-gray-800 to-gray-700 text-gray-200 border border-gray-700 shadow-lg rounded-full sm:ml-4 sm:w-auto"
-                      href="/casos" // 3. CORREGIDO: Apunta a /casos
+                      className="btn relative w-full bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 shadow-lg rounded-full sm:ml-4 sm:w-auto"
+                      href="/casos"
                     >
-                      Ver Casos {/* 4. CORREGIDO: Texto del botón */}
+                       <span className="relative inline-flex items-center px-4 py-2">
+                         Ver Casos
+                       </span>
                     </Link>
                   </motion.div>
                 </div>
-                {/* --- FIN DE LA EDICIÓN DE BOTONES --- */}
-
               </div>
             </div>
           </div>
@@ -90,14 +86,15 @@ export default function HeroHome() {
             data-aos="fade-up"
             data-aos-delay="200"
           >
+            {/* ... (Tu componente Image) ... */}
             <Image
-              src="/images/kippilex1-transparent.png"
-              width={512} 
-              height={288} 
-              alt="Plataforma KippiLex"
-              className="w-full h-auto max-w-md" 
-              priority={true}
-            />
+               src="/images/kippilex1-transparent.png"
+               width={512} 
+               height={288} 
+               alt="Plataforma KippiLex"
+               className="w-full h-auto max-w-md" 
+               priority={true}
+             />
           </div>
         </div>
       </div>

@@ -78,8 +78,12 @@ export default function Header() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    setMenuOpen(false);
-    window.location.href = '/'; // Correcto
+    setMenuOpen(false); // Cerramos el menú
+    
+    // --- CORRECCIÓN ---
+    // Usamos window.location.href para forzar una recarga
+    // completa de la página, limpiando cualquier estado.
+    window.location.href = '/'; 
   };
 
   const toggleMenu = () => {
