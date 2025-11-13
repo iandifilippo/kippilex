@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react'; // Importamos useRef
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import type { Session } from '@supabase/supabase-js';
+import { motion } from 'framer-motion'; // Importamos motion para el zoom
 
-// Definimos un tipo para el perfil que esperamos
 type Profile = {
   nombre: string;
 }
@@ -21,17 +21,41 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
+  // --- ARREGLO CLICK-OUTSIDE ---
+  // Creamos "refs" para los menús
+  const menuRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Función para manejar el clic
+    const handleClickOutside = (event: MouseEvent) => {
+      // Si el menú está abierto y el clic fue fuera de menuRef
+      if (menuOpen && menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+      // Si las notificaciones están abiertas y el clic fue fuera de notificationsRef
+      if (notificationsOpen && notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setNotificationsOpen(false);
+      }
+    };
+
+    // Añadimos el listener
+    document.addEventListener('mousedown', handleClickOutside);
+    // Limpiamos el listener al desmontar
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menuOpen, notificationsOpen]); // Se ejecuta si estos estados cambian
+  // --- FIN ARREGLO CLICK-OUTSIDE ---
+
+
   useEffect(() => {
     const fetchData = async () => {
+      // ... (Tu código de fetchData, está perfecto) ...
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
-
       if (session) {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('nombre')
-          .eq('id', session.user.id)
-          .single();
+        const { data: profileData } = await supabase.from('profiles').select('nombre').eq('id', session.user.id).single();
         setProfile(profileData);
       }
     };
@@ -39,84 +63,73 @@ export default function Header() {
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (_event, newSession) => {
+        // ... (Tu código de onAuthStateChange, está perfecto) ...
         setSession(newSession);
         if (newSession) {
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('nombre')
-            .eq('id', newSession.user.id)
-            .single();
+          const { data: profileData } = await supabase.from('profiles').select('nombre').eq('id', newSession.user.id).single();
           setProfile(profileData);
         } else {
           setProfile(null);
         }
       }
     );
-
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
+    return () => { authListener?.subscription.unsubscribe(); };
   }, [supabase, router]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    setMenuOpen(false); // Cerramos el menú
-    
-    // --- CORRECCIÓN ---
-    // Usamos window.location.href para forzar una recarga
-    // completa de la página, limpiando cualquier estado.
-    window.location.href = '/'; 
+    setMenuOpen(false);
+    window.location.href = '/'; // Correcto
   };
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
     setNotificationsOpen(false);
   };
-
   const toggleNotifications = () => {
     setNotificationsOpen(!notificationsOpen);
     setMenuOpen(false);
   };
 
-  // --- CORRECCIÓN "Hola, Usuario" ---
-  // 1. Intenta obtener el nombre del perfil (que llenas en el formulario)
   const profileName = profile?.nombre?.split(' ')[0];
-  // 2. Si no existe, obtén el nombre de la sesión de Google
   const googleName = session?.user.user_metadata?.full_name?.split(' ')[0];
-  // 3. Usa el primero que exista, o "Usuario" como último recurso
   const displayName = profileName || googleName || 'Usuario';
-  // --- FIN DE LA CORRECCIÓN ---
 
   return (
     <header className="z-30 mt-2 w-full md:mt-5">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="relative flex h-16 items-center justify-between gap-3 rounded-2xl bg-gray-900/90 px-3 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] after:absolute after:inset-0 after:-z-10 after:backdrop-blur-xs">
+        <div className="relative flex h-16 items-center justify-between gap-3 rounded-2xl bg-gray-900/90 px-3 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear_gradient(white_0_0)] after:absolute after:inset-0 after:-z-10 after:backdrop-blur-xs">
           
-          {/* Logo */}
+          {/* Logo con Animación */}
           <div className="flex flex-1 items-center">
-            <Link href="/" aria-label="KippiLex">
-              <Image
-                src="/images/kippilexlogo.png"
-                width={48} 
-                height={48}
-                alt="KippiLex Logo"
-                priority={true}
-              />
-            </Link>
+            {/* --- FEATURE: ZOOM AL LOGO --- */}
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+            >
+              <Link href="/" aria-label="KippiLex">
+                <Image
+                  src="/images/kippilexlogo.png"
+                  width={48} 
+                  height={48}
+                  alt="KippiLex Logo"
+                  priority={true}
+                />
+              </Link>
+            </motion.div>
+            {/* --- FIN FEATURE --- */}
           </div>
 
           {/* Navegación Dinámica */}
           <div className="flex flex-1 items-center justify-end">
             {session ? (
-              // --- VISTA: USUARIO LOGUEADO ---
               <div className="flex items-center gap-3 sm:gap-4">
-                
                 <span className="text-sm text-gray-300 hidden md:block">
                   Hola, {displayName}
                 </span>
 
-                {/* Botón de Notificaciones */}
-                <div className="relative">
+                {/* Botón de Notificaciones (con 'ref') */}
+                <div className="relative" ref={notificationsRef}>
                   <button
                     onClick={toggleNotifications}
                     className="btn-sm flex h-9 w-9 items-center justify-center rounded-full bg-gray-800 p-0 text-gray-400 hover:bg-gray-700/70"
@@ -124,25 +137,25 @@ export default function Header() {
                   >
                     <BellIcon />
                   </button>
-                  
                   {notificationsOpen && (
                     <div className="absolute top-full right-0 mt-2 w-72 origin-top-right rounded-xl bg-white p-4 shadow-lg text-gray-800">
-                      <div className="mb-2 flex items-center justify-between px-2">
-                        <h3 className="font-semibold">Notificaciones</h3>
-                      </div>
-                      <div className="flex flex-col items-center justify-center py-8 text-center">
-                        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-                          <BellIcon className="h-6 w-6 text-gray-400" />
-                        </div>
-                        <p className="text-lg font-semibold text-gray-700">No hay notificaciones</p>
-                        <p className="text-sm text-gray-500">Te notificaremos cuando tengas novedades</p>
-                      </div>
+                      {/* ... Contenido de Notificaciones ... */}
+                       <div className="mb-2 flex items-center justify-between px-2">
+                         <h3 className="font-semibold">Notificaciones</h3>
+                       </div>
+                       <div className="flex flex-col items-center justify-center py-8 text-center">
+                         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+                           <BellIcon className="h-6 w-6 text-gray-400" />
+                         </div>
+                         <p className="text-lg font-semibold text-gray-700">No hay notificaciones</p>
+                         <p className="text-sm text-gray-500">Te notificaremos cuando tengas novedades</p>
+                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Botón de Menú de Usuario */}
-                <div className="relative">
+                {/* Botón de Menú (con 'ref') */}
+                <div className="relative" ref={menuRef}>
                   <button
                     onClick={toggleMenu}
                     className="btn-sm flex h-9 w-9 items-center justify-center rounded-full bg-gray-800 p-0 text-gray-400 hover:bg-gray-700/70"
@@ -150,19 +163,16 @@ export default function Header() {
                   >
                     <MenuIcon />
                   </button>
-
-                  {/* Dropdown de Menú (basado en tu imagen) */}
                   {menuOpen && (
                     <div className="absolute top-full right-0 mt-2 w-60 origin-top-right rounded-xl bg-white p-2 shadow-lg text-gray-800">
+                      {/* ... Contenido del Menú ... */}
                       <div className="p-2">
                         <h4 className="font-bold">Menú</h4>
                       </div>
                       <ul className="flex flex-col">
-                        {/* --- ENLACES CORREGIDOS --- */}
                         <MenuItem href="/dashboard" icon={<CaseIcon />} label="Mis Casos" />
                         <MenuItem href="/dashboard/perfil" icon={<UserIcon />} label="Mi Perfil" />
                         <MenuItem href="/dashboard/configuracion" icon={<SettingsIcon />} label="Configuraciones" />
-                        {/* "Conversaciones" y "Opinión" eliminados */}
                         <li>
                           <button
                             onClick={handleSignOut}
@@ -177,38 +187,35 @@ export default function Header() {
                   )}
                 </div>
               </div>
-
             ) : (
               // --- VISTA: USUARIO DESCONECTADO ---
               <ul className="flex items-center gap-3">
-                <li>
-                  <Link
-                    href="/signin"
-                    className="btn-sm relative bg-linear-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] py-[5px] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear_gradient(white_0_0)] hover:bg-[length:100%_150%]"
-                  >
-                    Ingresar
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/signup"
-                    className="btn-sm bg-linear-to-t from-indigo-600 to-indigo-500 bg-[length:100%_100%] bg-[bottom] py-[5px] text-white shadow-[inset_0px_1px_0px_0px_--theme(--color-white/.16)] hover:bg-[length:100%_150%]"
-                  >
-                    Registrarse
-                  </Link>
-                </li>
-              </ul>
+                 <li>
+                   <Link
+                     href="/signin"
+                     className="btn-sm relative bg-linear-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] py-[5px] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear_gradient(white_0_0)] hover:bg-[length:100%_150%]"
+                   >
+                     Ingresar
+                   </Link>
+                 </li>
+                 <li>
+                   <Link
+                     href="/signup"
+                     className="btn-sm bg-linear-to-t from-indigo-600 to-indigo-500 bg-[length:100%_100%] bg-[bottom] py-[5px] text-white shadow-[inset_0px_1px_0px_0px_--theme(--color-white/.16)] hover:bg-[length:100%_150%]"
+                   >
+                     Registrarse
+                   </Link>
+                 </li>
+               </ul>
             )}
           </div>
-          
         </div>
       </div>
     </header>
   );
 }
 
-
-// --- Componente para los items del Menú ---
+// (Pega el resto de tu código de Iconos y MenuItem aquí abajo)
 const MenuItem = ({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) => (
   <li>
     <Link
@@ -220,8 +227,6 @@ const MenuItem = ({ href, icon, label }: { href: string; icon: React.ReactNode; 
     </Link>
   </li>
 );
-
-// --- Componentes de Iconos (SVGs) ---
 const BellIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
   <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.017 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />

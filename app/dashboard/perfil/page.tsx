@@ -1,20 +1,21 @@
 // RUTA: app/dashboard/perfil/page.tsx
-// ESTADO: NUEVO ARCHIVO
+// ESTADO: CORREGIDO (Arregla bugs de carga, avatar y lápiz funcional)
 
 "use client";
 
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import type { User } from '@supabase/supabase-js';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import LoadingSpinner from '@/components/ui/LoadingSpinner'; // Importamos el Spinner
+import AvatarUpload from '@/components/ui/AvatarUpload'; // Importamos el componente de Avatar
 
-// Definimos los tipos para el perfil y el formulario
 type ProfileData = {
   nombre: string | null;
   apellido: string | null;
   genero: string | null;
   whatsapp: string | null;
+  avatar_url: string | null; // Añadimos avatar_url
 };
 
 export default function PerfilPage() {
@@ -22,24 +23,13 @@ export default function PerfilPage() {
   const router = useRouter();
   
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<ProfileData>({
-    nombre: '',
-    apellido: '',
-    genero: '',
-    whatsapp: '',
-  });
-  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [loading, setLoading] = useState(true); // Empezar cargando
   const [message, setMessage] = useState('');
-  
-  // Estado para la fecha de registro
   const [memberSince, setMemberSince] = useState('');
-  
-  // Estado para el avatar
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
-      setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push('/signin');
@@ -47,38 +37,38 @@ export default function PerfilPage() {
       }
       setUser(user);
 
-      // Formatear fecha de registro
       const joinDate = new Date(user.created_at);
       const formattedDate = joinDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
       setMemberSince(formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1));
       
-      // Obtener avatar de Google
-      setAvatarUrl(user.user_metadata.avatar_url || null);
-
-      // Obtener datos del perfil (nombre, apellido, etc.)
+      // --- CORRECCIÓN DE BUGS DE CARGA Y AVATAR ---
+      // Con los permisos RLS (Paso 1), esta query ahora SÍ funcionará
       const { data: profileData, error } = await supabase
         .from('profiles')
-        .select('nombre, apellido, genero, whatsapp')
+        .select('nombre, apellido, genero, whatsapp, avatar_url') // Pedimos el avatar_url
         .eq('id', user.id)
         .single();
       
-      if (profileData) {
+      if (error) {
+        console.error('Error al cargar el perfil:', error);
+        setProfile(null); 
+      } else {
         setProfile(profileData);
       }
       
-      setLoading(false);
+      setLoading(false); // Terminamos de cargar
     };
     fetchUserData();
   }, [supabase, router]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
+    setProfile(prev => (prev ? { ...prev, [name]: value } : null));
   };
 
   const handleUpdateProfile = async (e: FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !profile) return;
     
     setLoading(true);
     setMessage('');
@@ -98,39 +88,41 @@ export default function PerfilPage() {
       console.error(error);
     } else {
       setMessage('¡Perfil actualizado con éxito!');
-      // Forzamos un refresh del router para que el header vea el nuevo nombre
       router.refresh(); 
     }
     setLoading(false);
   };
   
-  // (La lógica para cambiar la foto es más compleja, por ahora solo la mostramos)
-
-  if (loading && !user) {
-     return <div className="p-8 text-center">Cargando...</div>;
+  // --- VISTA DE CARGA ---
+  if (loading || !user) {
+     return <LoadingSpinner />;
+  }
+  
+  // --- VISTA DE ERROR (Si RLS falló) ---
+  if (!profile) {
+    return <div className="p-8 text-center text-red-400">Error al cargar el perfil. Asegúrate de haber seleccionado un rol.</div>;
   }
 
+  // --- VISTA DE PERFIL (Carga exitosa) ---
   return (
     <section className="mx-auto max-w-4xl px-4 sm:px-6 py-12 md:py-20 text-white">
       
       {/* Tarjeta de Perfil Superior (Avatar y Nombre) */}
       <div className="rounded-2xl border border-gray-800/50 bg-gray-900/50 p-6 shadow-lg flex items-center gap-6 mb-8">
-        <div className="relative">
-          <Image
-            src={avatarUrl || '/images/default-avatar.png'} // (Necesitas un avatar por defecto)
-            width={96}
-            height={96}
-            alt="Avatar"
-            className="rounded-full"
-          />
-          {/* Botón de cambiar foto (sin funcionalidad aún) */}
-          <button className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 hover:bg-indigo-700 border-2 border-gray-900">
-            <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-          </button>
-        </div>
+        
+        {/* Lápiz Funcional (usa el avatar de 'profiles' o el de Google como fallback) */}
+        <AvatarUpload 
+          user={user}
+          initialAvatarUrl={profile.avatar_url || user.user_metadata.avatar_url}
+          onUploadSuccess={(newUrl) => {
+            setProfile(prev => (prev ? { ...prev, avatar_url: newUrl } : null));
+            router.refresh(); 
+          }}
+        />
+
         <div>
           <h1 className="text-2xl font-bold">
-            {profile.nombre || user?.user_metadata.full_name || 'Usuario'}
+            {profile.nombre || user.user_metadata.full_name || 'Usuario'}
           </h1>
           <p className="text-sm text-gray-400">
             Miembro desde {memberSince}
@@ -145,26 +137,19 @@ export default function PerfilPage() {
         
         <form onSubmit={handleUpdateProfile}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            {/* Nombre */}
+            {/* ... (Tus campos de formulario: Nombre, Apellido, Email, Género, WhatsApp) ... */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-300" htmlFor="nombre">Nombre</label>
               <input id="nombre" type="text" name="nombre" value={profile.nombre || ''} onChange={handleInputChange} className="form-input w-full" placeholder="Tu nombre" />
             </div>
-            
-            {/* Apellido */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-300" htmlFor="apellido">Apellido</label>
               <input id="apellido" type="text" name="apellido" value={profile.apellido || ''} onChange={handleInputChange} className="form-input w-full" placeholder="Tu apellido" />
             </div>
-
-            {/* Email (Bloqueado) */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-300" htmlFor="email">Email</label>
-              <input id="email" type="email" value={user?.email || ''} className="form-input w-full bg-gray-800 border-gray-700 cursor-not-allowed" placeholder="Tu email" disabled />
+              <input id="email" type="email" value={user.email || ''} className="form-input w-full bg-gray-800 border-gray-700 cursor-not-allowed" placeholder="Tu email" disabled />
             </div>
-            
-            {/* Género */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-300" htmlFor="genero">Género</label>
               <select id="genero" name="genero" value={profile.genero || ''} onChange={handleInputChange} className="form-select w-full" >
@@ -174,8 +159,6 @@ export default function PerfilPage() {
                 <option value="otro">Otro</option>
               </select>
             </div>
-
-            {/* WhatsApp */}
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium text-gray-300" htmlFor="whatsapp">Número WhatsApp</label>
               <input id="whatsapp" type="tel" name="whatsapp" value={profile.whatsapp || ''} onChange={handleInputChange} className="form-input w-full" placeholder="Ej: 3101234567" />
@@ -185,12 +168,11 @@ export default function PerfilPage() {
           <div className="flex items-center justify-end gap-4 mt-8">
             {message && <p className="text-sm text-indigo-400">{message}</p>}
             <button type="submit" disabled={loading} className="btn bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg disabled:opacity-50">
-              {loading ? 'Guardando...' : 'Guardar Cambios'}
+              {loading ? <LoadingSpinner /> : 'Guardar Cambios'}
             </button>
           </div>
         </form>
       </div>
-
     </section>
   );
 }

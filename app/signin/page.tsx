@@ -1,5 +1,5 @@
 // RUTA: app/signin/page.tsx
-// ESTADO: CORREGIDO (Arregla el Bug #1)
+// ESTADO: CORREGIDO (Link de "Regístrate" añadido)
 
 "use client";
 
@@ -50,15 +50,13 @@ export default function SignIn() {
             </button>
           </div>
 
-          {/* --- ESTA ES LA CORRECCIÓN (Añadir el link de vuelta) --- */}
+          {/* --- CORRECCIÓN: Link de "Regístrate" añadido --- */}
           <div className="mt-6 text-center text-sm text-indigo-200/65">
             ¿No tienes una cuenta?{" "}
             <Link className="font-medium text-indigo-500" href="/signup">
               Regístrate
             </Link>
           </div>
-          {/* --- FIN DE LA CORRECCIÓN --- */}
-
         </div>
       </div>
     </section>
