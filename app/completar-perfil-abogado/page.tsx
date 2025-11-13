@@ -102,11 +102,15 @@ export default function LawyerRegistrationForm() {
   // Lógica para obtener el nombre de Google (se mantiene simplificada)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type } = e.target;
+    // Corregimos el error extrayendo 'checked' solo si el elemento existe y es un checkbox
+    const checked = (e.target as HTMLInputElement).checked; 
+
     if (type === 'file') {
       const target = e.target as HTMLInputElement;
       setFormData(prev => ({ ...prev, [name]: target.files ? target.files[0] : null }));
     } else {
+      // Usamos el valor de checked SOLO si el tipo es checkbox
       setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     }
   };
