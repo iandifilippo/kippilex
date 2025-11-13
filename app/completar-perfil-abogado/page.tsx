@@ -1,8 +1,8 @@
-// --- CÓDIGO FINAL: app/completar-perfil-abogado/page.tsx ---
+// --- CÓDIGO COMPLETO Y FINAL DE LA PÁGINA DE REGISTRO DE ABOGADO ---
 
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 
@@ -28,7 +28,7 @@ const LEGAL_SPECIALTIES_DATA = [
 ];
 // --- FIN DE DEFINICIONES DE DATOS ---
 
-// --- MODAL DE TÉRMINOS Y CONDICIONES (Contenido y Componente) ---
+// --- MODAL DE TÉRMINOS Y CONDICIONES (Componente y Contenido) ---
 const TERMS_AND_CONDITIONS_ES = [
   { title: "1. Aceptación de los Términos", content: "Bienvenido a KippiLex. Al acceder o utilizar nuestra plataforma, usted acepta cumplir con estos Términos y Condiciones. (Verificación: Leyes de Colombia/Jurisdicción: Bogotá)." },
   { title: "2. Definiciones", content: "Plataforma: KippiLex y sus servicios asociados. Abogado: Profesional del derecho registrado en la plataforma. Cliente: Persona que utiliza la plataforma para buscar servicios legales." },
@@ -41,7 +41,7 @@ const TERMS_AND_CONDITIONS_ES = [
   { title: "17. Contacto", content: "Para cualquier consulta, comuníquese con KippiLex a través de kippilex@gmail.com." },
 ];
 
-const TermsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+const TermsModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
@@ -79,15 +79,17 @@ const TermsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
 export default function LawyerRegistrationForm() {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [formData, setFormData] = useState({
-    nombre: 'Ian', 
-    apellido: 'Di Filippo',
+    // --- CORRECCIÓN 1: ELIMINAMOS DATOS PERSONALES Y TIPAMOS 'especialidades' ---
+    nombre: '', 
+    apellido: '',
     genero: '',
     fechaNacimiento: '',
     whatsapp: '',
     ciudad: '', 
     cedula: '', 
     tarjetaProfesional: '', 
-    especialidades: [],
+    especialidades: [] as string[], // Tipado para eliminar el error 'never'
+    // --- FIN DE CORRECCIÓN 1 ---
     aceptaTerminos: false,
     documento: null as File | null,
   });
@@ -102,15 +104,11 @@ export default function LawyerRegistrationForm() {
   // Lógica para obtener el nombre de Google (se mantiene simplificada)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    // Corregimos el error extrayendo 'checked' solo si el elemento existe y es un checkbox
-    const checked = (e.target as HTMLInputElement).checked; 
-
+    const { name, value, type, checked } = e.target;
     if (type === 'file') {
       const target = e.target as HTMLInputElement;
       setFormData(prev => ({ ...prev, [name]: target.files ? target.files[0] : null }));
     } else {
-      // Usamos el valor de checked SOLO si el tipo es checkbox
       setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     }
   };
@@ -132,7 +130,7 @@ export default function LawyerRegistrationForm() {
     setLoading(true);
     setFormError(''); // Limpiar errores
 
-    // --- VALIDACIÓN ---
+    // --- LÓGICA DE VALIDACIÓN ---
     if (formData.especialidades.length === 0) {
         setFormError('Por favor, selecciona al menos una especialidad.');
         setLoading(false); return;
