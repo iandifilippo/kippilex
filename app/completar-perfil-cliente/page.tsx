@@ -21,9 +21,12 @@ const TERMS_AND_CONDITIONS_ES = [
   { title: "13. Jurisdicción y Ley Aplicable", content: "Estos términos se rigen por las leyes de la República de Colombia. Cualquier controversia será sometida a los tribunales ordinarios con jurisdicción en la ciudad de Bogotá, renunciando a cualquier otro fuero." },
   { title: "17. Contacto", content: "Para cualquier consulta, comuníquese con KippiLex a través de kippilex@gmail.com." },
 ];
+interface TermsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-const TermsModal = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
+const TermsModal = ({ isOpen, onClose }: TermsModalProps) => {  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-950/75 backdrop-blur-sm transition-opacity">

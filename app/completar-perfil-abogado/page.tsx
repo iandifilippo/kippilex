@@ -118,15 +118,15 @@ export default function LawyerRegistrationForm() {
   // --- CORRECCIÓN DE TYPESCRIPT 3: Tipado de 'checked' ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
+    // Corregimos el error extrayendo 'checked' solo si el elemento es un HTMLInputElement
+    const checked = (e.target as HTMLInputElement).checked; 
 
     if (type === 'file') {
       const target = e.target as HTMLInputElement;
       setFormData(prev => ({ ...prev, [name]: target.files ? target.files[0] : null }));
-    } else if (type === 'checkbox') {
-      const target = e.target as HTMLInputElement;
-      setFormData(prev => ({ ...prev, [name]: target.checked }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      // Usamos el valor de checked SOLO si el tipo es checkbox
+      setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     }
   };
   // --- FIN DE CORRECCIÓN 3 ---
