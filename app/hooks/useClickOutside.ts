@@ -1,22 +1,23 @@
-// RUTA: hooks/useClickOutside.ts
-// ESTADO: NUEVO ARCHIVO (Necesario para cerrar el menú)
+// RUTA: app/hooks/useClickOutside.ts
+// ESTADO: NUEVO (Asegúrate de que este archivo exista)
 
 import { useEffect, RefObject } from 'react';
 
-type Handler = (event: MouseEvent | TouchEvent) => void;
+type Event = MouseEvent | TouchEvent;
 
-export function useClickOutside<T extends HTMLElement = HTMLElement>(
+export const useClickOutside = <T extends HTMLElement = HTMLElement>(
   ref: RefObject<T>,
-  handler: Handler
-): void {
+  handler: (event: Event) => void
+) => {
   useEffect(() => {
-    const listener = (event: MouseEvent | TouchEvent) => {
+    const listener = (event: Event) => {
       const el = ref?.current;
-      // No hacer nada si el clic es dentro del elemento
-      if (!el || el.contains(event.target as Node)) {
+      // Si el ref no existe o el clic fue DENTRO del ref, no hagas nada
+      if (!el || el.contains((event?.target as Node) || null)) {
         return;
       }
-      handler(event); // Clic fuera, ejecutar el handler (cerrar menú)
+      // Si el clic fue AFUERA, ejecuta el handler
+      handler(event);
     };
 
     document.addEventListener('mousedown', listener);
@@ -27,4 +28,6 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
       document.removeEventListener('touchstart', listener);
     };
   }, [ref, handler]);
-}
+};
+
+export default useClickOutside;
