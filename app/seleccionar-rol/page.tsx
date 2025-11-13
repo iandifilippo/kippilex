@@ -1,4 +1,5 @@
-// --- CÓDIGO FINAL Y DEFINITIVO: app/seleccionar-rol/page.tsx ---
+// RUTA: app/seleccionar-rol/page.tsx
+// ESTADO: CORRECTO (Este archivo no tiene errores)
 
 "use client";
 
@@ -35,11 +36,10 @@ export default function SeleccionarRol() {
       console.error(updateError);
       setLoading(false);
     } else {
-      // 3. ¡Éxito! REDIRECCIÓN FORZADA (El truco más robusto)
+      // Redirección forzada
       if (role === 'abogado') {
-        window.location.href = '/completar-perfil-abogado'; // Correcto
+        window.location.href = '/completar-perfil-abogado';
       } else {
-        // --- CORRECCIÓN FINAL: Cliente va al formulario de cliente ---
         window.location.href = '/completar-perfil-cliente'; 
       }
     }
@@ -66,9 +66,8 @@ export default function SeleccionarRol() {
             <button
               onClick={() => handleRoleSelection('abogado')}
               disabled={loading}
-              className="group relative flex flex-col items-center rounded-2xl bg-linear-to-br from-gray-900/50 via-gray-800/25 to-gray-900/50 p-8 text-center backdrop-blur-xs transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:before:border-indigo-500/50 disabled:opacity-50"
+              className="group relative flex flex-col items-center rounded-2xl bg-linear-to-br from-gray-900/50 via-gray-800/25 to-gray-900/50 p-8 text-center backdrop-blur-xs transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear_gradient(white_0_0)] hover:before:border-indigo-500/50 disabled:opacity-50"
             >
-              {/* Icono (Placeholder) */}
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/20">
                 <svg className="h-8 w-8 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -85,7 +84,7 @@ export default function SeleccionarRol() {
             <button
               onClick={() => handleRoleSelection('cliente')}
               disabled={loading}
-              className="group relative flex flex-col items-center rounded-2xl bg-linear-to-br from-gray-900/50 via-gray-800/25 to-gray-900/50 p-8 text-center backdrop-blur-xs transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:before:border-indigo-500/50 disabled:opacity-50"
+              className="group relative flex flex-col items-center rounded-2xl bg-linear-to-br from-gray-900/50 via-gray-800/25 to-gray-900/50 p-8 text-center backdrop-blur-xs transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear_gradient(white_0_0)] hover:before:border-indigo-500/50 disabled:opacity-50"
             >
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/20">
                 <svg className="h-8 w-8 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">

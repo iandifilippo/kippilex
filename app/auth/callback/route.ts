@@ -1,4 +1,5 @@
-// EN: app/auth/callback/route.ts
+// RUTA: app/auth/callback/route.ts
+// ESTADO: CORRECTO (Este archivo está perfecto)
 
 import { createSupabaseServerClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
