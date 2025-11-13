@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 
@@ -28,7 +28,7 @@ const LEGAL_SPECIALTIES_DATA = [
 ];
 // --- FIN DE DEFINICIONES DE DATOS ---
 
-// --- MODAL DE TÉRMINOS Y CONDICIONES (Componente y Contenido) ---
+// --- MODAL DE TÉRMINOS Y CONDICIONES (Contenido y Componente) ---
 const TERMS_AND_CONDITIONS_ES = [
   { title: "1. Aceptación de los Términos", content: "Bienvenido a KippiLex. Al acceder o utilizar nuestra plataforma, usted acepta cumplir con estos Términos y Condiciones. (Verificación: Leyes de Colombia/Jurisdicción: Bogotá)." },
   { title: "2. Definiciones", content: "Plataforma: KippiLex y sus servicios asociados. Abogado: Profesional del derecho registrado en la plataforma. Cliente: Persona que utiliza la plataforma para buscar servicios legales." },
@@ -41,9 +41,9 @@ const TERMS_AND_CONDITIONS_ES = [
   { title: "17. Contacto", content: "Para cualquier consulta, comuníquese con KippiLex a través de kippilex@gmail.com." },
 ];
 
-// --- MODAL DE TÉRMINOS Y CONDICIONES (CORREGIDO PARA COMPATIBILIDAD) ---
-const TermsModal = (props) => {
-  if (!props.isOpen) return null;
+// --- CORRECCIÓN DE TYPESCRIPT 1: Tipado explícito de props ---
+const TermsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-950/75 backdrop-blur-sm transition-opacity">
@@ -51,7 +51,7 @@ const TermsModal = (props) => {
         <div className="relative w-full rounded-2xl bg-gray-800 p-6 shadow-2xl">
           <div className="flex items-center justify-between border-b border-gray-700 pb-3">
             <h3 className="text-xl font-bold text-gray-100">Términos y Condiciones</h3>
-            <button onClick={props.onClose} className="rounded-full p-2 text-gray-400 transition hover:bg-gray-700 hover:text-white">
+            <button onClick={onClose} className="rounded-full p-2 text-gray-400 transition hover:bg-gray-700 hover:text-white">
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
@@ -64,7 +64,7 @@ const TermsModal = (props) => {
             ))}
           </div>
           <button
-            onClick={props.onClose}
+            onClick={onClose}
             className="btn-sm mt-6 w-full bg-linear-to-t from-indigo-600 to-indigo-500 text-white shadow-lg"
           >
             Cerrar y Aceptar
@@ -74,15 +74,13 @@ const TermsModal = (props) => {
     </div>
   );
 };
-
 // --- FIN DEL MODAL ---
 
 
 export default function LawyerRegistrationForm() {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [formData, setFormData] = useState({
-    // --- CORRECCIÓN 1: ELIMINAMOS DATOS PERSONALES Y TIPAMOS 'especialidades' ---
-    nombre: '', 
+    nombre: '', // Eliminamos tus datos personales del código
     apellido: '',
     genero: '',
     fechaNacimiento: '',
@@ -90,8 +88,8 @@ export default function LawyerRegistrationForm() {
     ciudad: '', 
     cedula: '', 
     tarjetaProfesional: '', 
-    especialidades: [] as string[], // Tipado para eliminar el error 'never'
-    // --- FIN DE CORRECCIÓN 1 ---
+    // --- CORRECCIÓN DE TYPESCRIPT 2: Tipado de array 'never' ---
+    especialidades: [] as string[],
     aceptaTerminos: false,
     documento: null as File | null,
   });
@@ -106,7 +104,10 @@ export default function LawyerRegistrationForm() {
   // Lógica para obtener el nombre de Google (se mantiene simplificada)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type } = e.target;
+    // --- CORRECCIÓN DE TYPESCRIPT 3: Tipado de 'checked' ---
+    const checked = (e.target as HTMLInputElement).checked;
+
     if (type === 'file') {
       const target = e.target as HTMLInputElement;
       setFormData(prev => ({ ...prev, [name]: target.files ? target.files[0] : null }));
@@ -127,12 +128,12 @@ export default function LawyerRegistrationForm() {
     setFormData(prev => ({ ...prev, especialidades: newEspecialidades }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setFormError(''); // Limpiar errores
 
-    // --- LÓGICA DE VALIDACIÓN ---
+    // --- VALIDACIÓN ---
     if (formData.especialidades.length === 0) {
         setFormError('Por favor, selecciona al menos una especialidad.');
         setLoading(false); return;
