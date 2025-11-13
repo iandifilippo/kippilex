@@ -41,7 +41,7 @@ const TERMS_AND_CONDITIONS_ES = [
   { title: "17. Contacto", content: "Para cualquier consulta, comuníquese con KippiLex a través de kippilex@gmail.com." },
 ];
 
-const TermsModal = ({ isOpen, onClose }) => {
+const TermsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   if (!isOpen) return null;
 
   return (

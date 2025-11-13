@@ -1,4 +1,3 @@
-// --- ESTE ES EL CONTENIDO COMPLETO DE app/completar-perfil-cliente/page.tsx ---
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -10,14 +9,64 @@ const COLOMBIAN_CITIES = [
   'Bucaramanga', 'Pereira', 'Santa Marta', 'Manizales', 'Neiva'
 ];
 
+// --- BLOQUE AÑADIDO: TÉRMINOS Y CONDICIONES (Contenido) ---
+const TERMS_AND_CONDITIONS_ES = [
+  { title: "1. Aceptación de los Términos", content: "Bienvenido a KippiLex. Al acceder o utilizar nuestra plataforma, usted acepta cumplir con estos Términos y Condiciones. (Verificación: Leyes de Colombia/Jurisdicción: Bogotá)." },
+  { title: "2. Definiciones", content: "Plataforma: KippiLex y sus servicios asociados. Abogado: Profesional del derecho registrado en la plataforma. Cliente: Persona que utiliza la plataforma para buscar servicios legales." },
+  { title: "3. Descripción del Servicio", content: "KippiLex es un canal tecnológico para facilitar la conexión entre usuarios y abogados. KippiLex no interviene en la relación contractual, económica ni comunicacional." },
+  { title: "4. Requisitos para Abogados", content: "Deben estar matriculados y habilitados para ejercer en su jurisdicción. KippiLex valida credenciales mediante consultas a fuentes públicas. Verificar su identidad con Cédula. Los abogados se comprometen a mantener su información profesional actualizada. Para Clientes: Deben proporcionar información veraz al registrarse. Está prohibido usar identidades falsas o suplantar a terceros." },
+  { title: "7. Protección de Datos", content: "La plataforma cumple con la Ley de Protección de Datos Personales de Colombia. Sus datos se almacenan en servidores seguros con cifrado." },
+  { title: "9. Limitación de Responsabilidad", content: "KippiLex es una plataforma tecnológica que actúa exclusivamente como intermediaria. Los abogados registrados prestan sus servicios de manera independiente y autónoma. KippiLex no garantiza resultados ni se responsabiliza por perjuicios derivados del vínculo cliente-abogado. Los resúmenes generados por IA son de carácter informativo y no constituyen asesoramiento legal." },
+  { title: "10. Tarifas y Pagos", content: "Para Clientes: El uso de la plataforma es 100% gratuito. Para Abogados: El acceso a las funcionalidades será gratuito en una versión limitada. Existen versiones pagas bajo la modalidad de suscripción mensual. El pago se realiza a través de la plataforma MercadoPago. El abogado puede cancelar su suscripción en cualquier momento." },
+  { title: "13. Jurisdicción y Ley Aplicable", content: "Estos términos se rigen por las leyes de la República de Colombia. Cualquier controversia será sometida a los tribunales ordinarios con jurisdicción en la ciudad de Bogotá, renunciando a cualquier otro fuero." },
+  { title: "17. Contacto", content: "Para cualquier consulta, comuníquese con KippiLex a través de kippilex@gmail.com." },
+];
+
+const TermsModal = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-950/75 backdrop-blur-sm transition-opacity">
+      <div className="mx-auto flex h-full w-full max-w-2xl items-center justify-center p-4">
+        <div className="relative w-full rounded-2xl bg-gray-800 p-6 shadow-2xl">
+          <div className="flex items-center justify-between border-b border-gray-700 pb-3">
+            <h3 className="text-xl font-bold text-gray-100">Términos y Condiciones</h3>
+            <button onClick={onClose} className="rounded-full p-2 text-gray-400 transition hover:bg-gray-700 hover:text-white">
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+          <div className="mt-4 max-h-96 space-y-4 overflow-y-scroll pr-4 text-sm text-indigo-200/65">
+            {TERMS_AND_CONDITIONS_ES.map((section, index) => (
+              <div key={index}>
+                <h4 className="font-semibold text-indigo-400">{section.title}</h4>
+                <p>{section.content}</p>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={onClose}
+            className="btn-sm mt-6 w-full bg-linear-to-t from-indigo-600 to-indigo-500 text-white shadow-lg"
+          >
+            Cerrar y Aceptar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+// --- FIN DEL BLOQUE DE TÉRMINOS Y CONDICIONES ---
+
+
 export default function ClientRegistrationForm() {
+  const [isTermsOpen, setIsTermsOpen] = useState(false); // ESTADO AÑADIDO
+  
   const [formData, setFormData] = useState({
     nombre: '',
     apellido: '',
-    whatsapp: '', // Campo añadido
+    whatsapp: '', 
     ciudad: '',
-    preferenciaContacto: '',
-    aceptaTerminos: false,
+    preferenciaContacto: '', 
+    aceptaTerminos: false, // Estado para el checkbox
   });
 
   const [loading, setLoading] = useState(false);
@@ -36,7 +85,7 @@ export default function ClientRegistrationForm() {
         }));
       }
     });
-  }, [supabase]);
+  }, [router, supabase]); // Añadida dependencia 'router'
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type, checked } = e.target;
@@ -57,6 +106,13 @@ export default function ClientRegistrationForm() {
       setLoading(false);
       return;
     }
+    
+    // Validar que se haya seleccionado una preferencia de contacto
+    if (!formData.preferenciaContacto) {
+        alert("Por favor, selecciona cómo prefieres recibir las propuestas.");
+        setLoading(false);
+        return;
+    }
 
     // Actualizamos la tabla 'profiles' con los datos del cliente
     const { error: updateError } = await supabase
@@ -64,7 +120,7 @@ export default function ClientRegistrationForm() {
       .update({
         nombre: formData.nombre,
         apellido: formData.apellido,
-        whatsapp: formData.whatsapp, // Campo añadido
+        whatsapp: formData.whatsapp, 
         ciudad: formData.ciudad,
         preferencia_contacto: formData.preferenciaContacto, 
       })
@@ -83,6 +139,9 @@ export default function ClientRegistrationForm() {
 
   return (
     <section className="bg-gray-950">
+      {/* --- RENDERIZADO DEL MODAL (El fix) --- */}
+      <TermsModal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
+      
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
         <div className="py-12 md:py-20">
           <div className="pb-12 text-center">
@@ -112,7 +171,7 @@ export default function ClientRegistrationForm() {
               {/* WhatsApp (Celular) y Ciudad */}
               <div className="space-y-4">
                 <label className="text-sm font-medium text-indigo-200/65" htmlFor="whatsapp">Número WhatsApp</label>
-                <input id="whatsapp" type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} className="form-input w-full" placeholder="Ej: 310000000 Sin +57" required />
+                <input id="whatsapp" type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} className="form-input w-full" placeholder="Ej: 3100000000" required />
               </div>
               <div className="space-y-4">
                 <label className="text-sm font-medium text-indigo-200/65" htmlFor="ciudad">Ciudad</label>
@@ -172,7 +231,10 @@ export default function ClientRegistrationForm() {
               <div className="flex items-center">
                 <input id="terms" type="checkbox" name="aceptaTerminos" checked={formData.aceptaTerminos} onChange={handleInputChange} className="form-checkbox text-indigo-500" required />
                 <label htmlFor="terms" className="ml-2 text-sm text-indigo-200/65">
-                  Acepto los Términos y Condiciones
+                  Acepto los{" "}
+                  <button type="button" onClick={() => setIsTermsOpen(true)} className="text-indigo-400 hover:underline">
+                    Términos y Condiciones
+                  </button>
                 </label>
               </div>
 
