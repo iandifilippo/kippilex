@@ -26,7 +26,8 @@ interface TermsModalProps {
   onClose: () => void;
 }
 
-const TermsModal = ({ isOpen, onClose }: TermsModalProps) => {  if (!isOpen) return null;
+const TermsModal = ({ isOpen, onClose }: TermsModalProps) => {  
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-950/75 backdrop-blur-sm transition-opacity">
@@ -91,7 +92,8 @@ export default function ClientRegistrationForm() {
   }, [router, supabase]); // Añadida dependencia 'router'
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type, checked } = e.target;
+const { name, value, type } = e.target;
+const checked = (e.target as HTMLInputElement).checked;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,

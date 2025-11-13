@@ -42,9 +42,21 @@ const TERMS_AND_CONDITIONS_ES = [
 ];
 
 // --- CORRECCIÓN DE TYPESCRIPT 1: Tipado explícito de props ---
-const TermsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+// --- PEGA ESTE BLOQUE COMPLETO (REEMPLAZANDO EL TUYO) ---
+
+// 1. Definimos la "plantilla" de tipos
+interface TermsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+// 2. Definimos el Componente (LA LÍNEA QUE TE FALTABA)
+const TermsModal = ({ isOpen, onClose }: TermsModalProps) => {
+
+  // 3. La lógica del componente (LA OTRA LÍNEA QUE FALTABA)
   if (!isOpen) return null;
 
+  // 4. El 'return' con tu JSX (ahora SÍ está DENTRO del componente)
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-950/75 backdrop-blur-sm transition-opacity">
       <div className="mx-auto flex h-full w-full max-w-2xl items-center justify-center p-4">

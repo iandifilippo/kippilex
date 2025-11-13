@@ -1,30 +1,19 @@
-import { createClient } from '@/utils/supabase/client'; // Usaremos el cliente del lado del navegador
 import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers'; 
-
-// --- 1. FUNCIÓN HELPER PARA CREAR EL CLIENTE DE SERVIDOR (EN LÍNEA) ---
-// *CORRECCIÓN* Definida dentro del mismo archivo para asegurar la compilación.
-const createSupabaseServerClient = () => {
-    const cookieStore = cookies();
-    return createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get: (name: string) => cookieStore.get(name)?.value,
-                // Usamos la sintaxis correcta para Route Handlers
-                set: (name: string, value: string, options) => cookieStore.set({ name, value, ...options }),
-                remove: (name: string, options) => cookieStore.set({ name, value: '', ...options }),
-            },
-        }
-    );
-};
-// --- FIN DE LA FUNCIÓN HELPER ---
-
+import React from 'react';
+// CORRECCIÓN: Importamos la función centralizada en lugar de re-crearla aquí
+import { createSupabaseServerClient } from '@/utils/supabase/server'; 
 
 // --- 2. Componente para las Tarjetas de Estadísticas (Helper) ---
-const StatsCard = ({ title, value, unit, color }) => (
-  // La corrección aquí es remover el doble className
+
+// CORRECCIÓN DE TYPESCRIPT: Añadimos tipos a las 'props' para evitar errores de 'any'
+interface StatsCardProps {
+  title: string;
+  value: string | number;
+  unit: string;
+  color: string; // 'color' se usa para la lógica de clases
+}
+
+const StatsCard = ({ title, value, unit, color }: StatsCardProps) => (
   <div className={`p-5 rounded-xl shadow-lg border ${color === 'blue' ? 'bg-indigo-500/10 border-indigo-400/30' : 'bg-gray-800/50 border-gray-700'}`}>
     <h3 className="text-3xl font-bold text-gray-100">{value}</h3>
     <p className="text-xs text-gray-400">{title}</p> 
@@ -34,6 +23,7 @@ const StatsCard = ({ title, value, unit, color }) => (
 
 
 export default async function DashboardPage() {
+  // CORRECCIÓN: Usamos la función importada
   const supabase = createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -66,13 +56,13 @@ export default async function DashboardPage() {
         {/* 1. ANUNCIO DE VERIFICACIÓN PENDIENTE (Banner Condicional) */}
         {isVerificationPending && (
           <div className="relative rounded-lg border border-yellow-500/50 bg-yellow-900/20 p-6 shadow-lg mb-8">
-              <h3 className="text-xl font-semibold text-yellow-300 mb-2">
-                  ¡Verificación Pendiente!
-              </h3>
-              <p className="text-sm text-yellow-200/80">
-                  Puedes ver las ofertas de casos disponibles en el panel inferior, pero no podrás ofertar o contactar clientes hasta que tu cuenta sea activada.
-                  Esto tomará un lapso de 1 a 4 horas, mientras nuestro equipo verifica tu tarjeta profesional.
-              </p>
+            <h3 className="text-xl font-semibold text-yellow-300 mb-2">
+              ¡Verificación Pendiente!
+            </h3>
+            <p className="text-sm text-yellow-200/80">
+              Puedes ver las ofertas de casos disponibles en el panel inferior, pero no podrás ofertar o contactar clientes hasta que tu cuenta sea activada.
+              Esto tomará un lapso de 1 a 4 horas, mientras nuestro equipo verifica tu tarjeta profesional.
+            </p>
           </div>
         )}
 
@@ -160,10 +150,10 @@ export default async function DashboardPage() {
   return (
     <section className="mx-auto max-w-6xl px-4 sm:px-6 py-12 md:py-20">
         <h1 className="text-3xl font-bold text-gray-100">
-            Error de Acceso
+          Error de Acceso
         </h1>
         <p className="text-lg text-gray-400 mt-4">
-            No se pudo determinar tu rol. Por favor, intenta iniciar sesión de nuevo.
+          No se pudo determinar tu rol. Por favor, intenta iniciar sesión de nuevo.
         </p>
     </section>
   );
