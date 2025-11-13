@@ -1,3 +1,6 @@
+// RUTA: components/ui/header.tsx
+// ESTADO: CORREGIDO (Click-Outside, Cerrar Sesión y Zoom)
+
 "use client";
 
 import Link from "next/link";
@@ -6,7 +9,7 @@ import { useState, useEffect, useRef } from 'react'; // Importamos useRef
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import type { Session } from '@supabase/supabase-js';
-import { motion } from 'framer-motion'; // Importamos motion para el zoom
+import { motion } from 'framer-motion';
 
 type Profile = {
   nombre: string;
@@ -22,7 +25,6 @@ export default function Header() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   // --- ARREGLO CLICK-OUTSIDE ---
-  // Creamos "refs" para los menús
   const menuRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
 
@@ -38,20 +40,16 @@ export default function Header() {
         setNotificationsOpen(false);
       }
     };
-
-    // Añadimos el listener
     document.addEventListener('mousedown', handleClickOutside);
-    // Limpiamos el listener al desmontar
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [menuOpen, notificationsOpen]); // Se ejecuta si estos estados cambian
+  }, [menuOpen, notificationsOpen]);
   // --- FIN ARREGLO CLICK-OUTSIDE ---
 
-
   useEffect(() => {
+    // ... (Tu código de fetchData y onAuthStateChange, está perfecto) ...
     const fetchData = async () => {
-      // ... (Tu código de fetchData, está perfecto) ...
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
       if (session) {
@@ -60,10 +58,8 @@ export default function Header() {
       }
     };
     fetchData();
-
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (_event, newSession) => {
-        // ... (Tu código de onAuthStateChange, está perfecto) ...
         setSession(newSession);
         if (newSession) {
           const { data: profileData } = await supabase.from('profiles').select('nombre').eq('id', newSession.user.id).single();
@@ -76,24 +72,16 @@ export default function Header() {
     return () => { authListener?.subscription.unsubscribe(); };
   }, [supabase, router]);
 
+  // --- ARREGLO CERRAR SESIÓN ---
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    setMenuOpen(false); // Cerramos el menú
-    
-    // --- CORRECCIÓN ---
-    // Usamos window.location.href para forzar una recarga
-    // completa de la página, limpiando cualquier estado.
-    window.location.href = '/'; 
-  };
-
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-    setNotificationsOpen(false);
-  };
-  const toggleNotifications = () => {
-    setNotificationsOpen(!notificationsOpen);
     setMenuOpen(false);
+    window.location.href = '/'; // Forzar refresh
   };
+  // --- FIN ARREGLO CERRAR SESIÓN ---
+
+  const toggleMenu = () => { setMenuOpen(!menuOpen); setNotificationsOpen(false); };
+  const toggleNotifications = () => { setNotificationsOpen(!notificationsOpen); setMenuOpen(false); };
 
   const profileName = profile?.nombre?.split(' ')[0];
   const googleName = session?.user.user_metadata?.full_name?.split(' ')[0];
@@ -104,11 +92,10 @@ export default function Header() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="relative flex h-16 items-center justify-between gap-3 rounded-2xl bg-gray-900/90 px-3 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear_gradient(white_0_0)] after:absolute after:inset-0 after:-z-10 after:backdrop-blur-xs">
           
-          {/* Logo con Animación */}
           <div className="flex flex-1 items-center">
-            {/* --- FEATURE: ZOOM AL LOGO --- */}
+            {/* --- EDICIÓN: ZOOM DE LOGO AUMENTADO --- */}
             <motion.div
-              whileHover={{ scale: 1.1 }}
+              whileHover={{ scale: 1.2 }} // Zoom aumentado
               transition={{ type: 'spring', stiffness: 400, damping: 10 }}
             >
               <Link href="/" aria-label="KippiLex">
@@ -121,10 +108,8 @@ export default function Header() {
                 />
               </Link>
             </motion.div>
-            {/* --- FIN FEATURE --- */}
           </div>
 
-          {/* Navegación Dinámica */}
           <div className="flex flex-1 items-center justify-end">
             {session ? (
               <div className="flex items-center gap-3 sm:gap-4">
@@ -143,7 +128,6 @@ export default function Header() {
                   </button>
                   {notificationsOpen && (
                     <div className="absolute top-full right-0 mt-2 w-72 origin-top-right rounded-xl bg-white p-4 shadow-lg text-gray-800">
-                      {/* ... Contenido de Notificaciones ... */}
                        <div className="mb-2 flex items-center justify-between px-2">
                          <h3 className="font-semibold">Notificaciones</h3>
                        </div>
@@ -169,7 +153,6 @@ export default function Header() {
                   </button>
                   {menuOpen && (
                     <div className="absolute top-full right-0 mt-2 w-60 origin-top-right rounded-xl bg-white p-2 shadow-lg text-gray-800">
-                      {/* ... Contenido del Menú ... */}
                       <div className="p-2">
                         <h4 className="font-bold">Menú</h4>
                       </div>
@@ -192,8 +175,7 @@ export default function Header() {
                 </div>
               </div>
             ) : (
-              // --- VISTA: USUARIO DESCONECTADO ---
-              <ul className="flex items-center gap-3">
+               <ul className="flex items-center gap-3">
                  <li>
                    <Link
                      href="/signin"

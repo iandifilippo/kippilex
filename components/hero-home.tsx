@@ -1,5 +1,5 @@
 // RUTA: components/HeroHome.tsx
-// ESTADO: CORREGIDO (Arreglo de estilos en 'Ver Casos')
+// ESTADO: CORREGIDO (Estilos de botón 'Ver Casos')
 
 "use client";
 
@@ -12,25 +12,25 @@ export default function HeroHome() {
     <section className="relative">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="py-12 md:py-20">
-          {/* ... (Tu encabezado de HeroHome) ... */}
-           <div className="pb-12 text-center md:pb-20">
-             <h1
-               className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,var(--color-indigo-200),var(--color-gray-50),var(--color-indigo-300))] bg-[length:200%_auto] bg-clip-text pb-5 font-nacelle text-4xl font-semibold text-transparent md:text-5xl"
-               data-aos="fade-up"
-             >
-               Tu aliado legal inteligente
-             </h1>
-             <div className="mx-auto max-w-3xl">
-               <p
-                 className="mb-8 text-xl text-indigo-200/65 leading-relaxed"
-                 data-aos="fade-up"
-                 data-aos-delay={200}
-               >
-                 KippiLex utiliza inteligencia artificial para comprender tu caso,
-                 encontrar al abogado ideal y simplificar tu proceso legal con
-                 transparencia, rapidez y confianza.
-               </p>
           
+          {/* Encabezado */}
+          <div className="pb-12 text-center md:pb-20">
+            <h1
+              className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,var(--color-indigo-200),var(--color-gray-50),var(--color-indigo-300))] bg-[length:200%_auto] bg-clip-text pb-5 font-nacelle text-4xl font-semibold text-transparent md:text-5xl"
+              data-aos="fade-up"
+            >
+              Tu aliado legal inteligente
+            </h1>
+            <div className="mx-auto max-w-3xl">
+              <p
+                className="mb-8 text-xl text-indigo-200/65 leading-relaxed"
+                data-aos="fade-up"
+                data-aos-delay={200}
+              >
+                KippiLex utiliza inteligencia artificial para comprender tu caso,
+                encontrar al abogado ideal y simplificar tu proceso legal con
+                transparencia, rapidez y confianza.
+              </p>
               <div className="mx-auto max-w-xs sm:flex sm:max-w-none sm:justify-center">
                 
                 {/* Botón 1: "Comenzar ahora" -> /signup */}
@@ -44,7 +44,7 @@ export default function HeroHome() {
                     transition={{ duration: 0.2 }}
                   >
                     <Link
-                      className="btn group mb-4 w-full bg-gradient-to-t from-indigo-600 to-indigo-500 text-white shadow-lg rounded-full sm:mb-0 sm:w-auto"
+                      className="btn group mb-4 w-full inline-block bg-gradient-to-t from-indigo-600 to-indigo-500 text-white shadow-lg rounded-full sm:mb-0 sm:w-auto"
                       href="/signup"
                     >
                       <span className="relative inline-flex items-center px-4 py-2">
@@ -60,7 +60,6 @@ export default function HeroHome() {
                 {/* Botón 2: "Ver Casos" -> /casos */}
                 <div data-aos="fade-up" data-aos-delay={600}>
                   {/* --- CORRECCIÓN DE ESTILO --- */}
-                  {/* Quité el 'bg-gradient-to-b' que causaba el fondo negro en hover */}
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.97 }}
@@ -86,7 +85,6 @@ export default function HeroHome() {
             data-aos="fade-up"
             data-aos-delay="200"
           >
-            {/* ... (Tu componente Image) ... */}
             <Image
                src="/images/kippilex1-transparent.png"
                width={512} 

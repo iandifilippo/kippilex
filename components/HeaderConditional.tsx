@@ -1,5 +1,5 @@
 // RUTA: components/HeaderConditional.tsx
-// ESTADO: CORREGIDO
+// ESTADO: CORREGIDO (Muestra el header en /casos)
 
 "use client";
 
@@ -15,13 +15,7 @@ export default function HeaderConditional() {
 
   // --- LÓGICA DE VISIBILIDAD CORREGIDA ---
   
-  // 1. Definimos las rutas donde SÍ queremos ver el header
-  const visibleRoutes = [
-    '/', // La página de inicio
-    '/dashboard' // El dashboard (y cualquier sub-ruta como /dashboard/settings)
-  ];
-
-  // 2. Definimos las rutas donde NO queremos ver el header
+  // 1. Definimos las rutas donde NO queremos ver el header
   const hiddenRoutes = [
     '/signin',
     '/signup',
@@ -31,19 +25,11 @@ export default function HeaderConditional() {
     '/reset-password'
   ];
 
-  // 3. Comprobamos si la ruta actual está en la lista de ocultas
   if (hiddenRoutes.includes(normalizedPathname)) {
-    return null; // Ocultar
+    return null; // Ocultar en estas páginas
   }
   
-  // 4. Comprobamos si la ruta actual COMIENZA con alguna de las rutas visibles
-  // (Esto permite que '/dashboard/settings' también muestre el header)
-  const showHeader = visibleRoutes.some(route => normalizedPathname.startsWith(route));
-
-  if (showHeader) {
-    return <Header />;
-  }
-
-  // Por defecto (para cualquier otra ruta no definida), no mostramos el header
-  return null;
+  // 2. Si no está en la lista de ocultas, LO MOSTRAMOS
+  // Esto mostrará el header en '/', '/dashboard', '/casos', etc.
+  return <Header />;
 }

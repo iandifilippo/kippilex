@@ -1,5 +1,5 @@
 // RUTA: app/signin/page.tsx
-// ESTADO: CORREGIDO (Añade logo de Google y link de 'Regístrate')
+// ESTADO: CORREGIDO (Título grande y logo Google)
 
 "use client";
 
@@ -23,8 +23,9 @@ export default function SignIn() {
   const router = useRouter();
   const supabase = createClient();
 
+  // El middleware ya maneja la redirección, pero esto es una
+  // segunda capa de seguridad en el cliente.
   useEffect(() => {
-    // (Tu guardia de useEffect - está correcta)
      supabase.auth.getSession().then(({ data: { session } }) => {
        if (session) {
          router.push('/dashboard');
@@ -48,7 +49,8 @@ export default function SignIn() {
         transition={{ duration: 0.5 }}
       >
         <div className="pb-12 text-center">
-          <h1 className="animate-[gradient_6s_linear_infinite] ...">
+          {/* --- CORRECCIÓN DE ESTILO DEL TÍTULO --- */}
+          <h1 className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,var(--color-gray-200),var(--color-indigo-200),var(--color-gray-50),var(--color-indigo-300),var(--color-gray-200))] bg-[length:200%_auto] bg-clip-text pb-5 font-nacelle text-4xl font-semibold text-transparent md:text-5xl">
             Bienvenido de vuelta
           </h1>
         </div>

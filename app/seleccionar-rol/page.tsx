@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion'; // Para la animación de entrada
+import { motion } from 'framer-motion';
 
 export default function SeleccionarRol() {
   const supabase = createClient();
@@ -18,16 +18,16 @@ export default function SeleccionarRol() {
     setLoading(true);
     setErrorMsg('');
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return; // Ya no debería pasar gracias al middleware
+    if (!user) return; // El middleware ya protege esto
 
     // --- CORRECCIÓN CLAVE: UPSERT ---
     // Esto CREA el perfil si no existe y guarda el ROL.
-    // También guarda los datos de Google
     const { error: upsertError } = await supabase
       .from('profiles')
       .upsert({
         id: user.id,
         role: role,
+        // Guardamos los datos de Google para usarlos en "Mi Perfil"
         nombre: user.user_metadata.full_name?.split(' ')[0] || user.user_metadata.name || '',
         apellido: user.user_metadata.full_name?.split(' ').slice(1).join(' ') || '',
         avatar_url: user.user_metadata.avatar_url, // <-- Guardamos la foto de Google
@@ -39,11 +39,8 @@ export default function SeleccionarRol() {
       setLoading(false);
     } else {
       // Redirección exitosa
-      if (role === 'abogado') {
-        window.location.href = '/completar-perfil-abogado';
-      } else {
-        window.location.href = '/completar-perfil-cliente'; 
-      }
+      const destination = role === 'abogado' ? '/completar-perfil-abogado' : '/completar-perfil-cliente';
+      window.location.href = destination; // Forzar refresh
     }
   };
 
@@ -64,10 +61,8 @@ export default function SeleccionarRol() {
           </p>
         </div>
 
-        {/* Contenedor de Tarjetas (CON ICONOS) */}
+        {/* --- ICONOS RESTAURADOS --- */}
         <div className="mx-auto grid max-w-sm gap-8 sm:max-w-none sm:grid-cols-2 lg:max-w-3xl">
-
-          {/* Tarjeta 1: Soy Abogado (con icono) */}
           <button
             onClick={() => handleRoleSelection('abogado')}
             disabled={loading}
@@ -84,8 +79,6 @@ export default function SeleccionarRol() {
               Registrarme como Abogado
             </span>
           </button>
-
-          {/* Tarjeta 2: Necesito Abogado (con icono) */}
           <button
             onClick={() => handleRoleSelection('cliente')}
             disabled={loading}

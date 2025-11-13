@@ -183,7 +183,7 @@ const checked = (e.target as HTMLInputElement).checked;
               {/* WhatsApp (Celular) y Ciudad */}
               <div className="space-y-4">
                 <label className="text-sm font-medium text-indigo-200/65" htmlFor="whatsapp">Número WhatsApp</label>
-                <input id="whatsapp" type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} className="form-input w-full" placeholder="Ej: 3100000000" required />
+                <input id="whatsapp" type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} className="form-input w-full" placeholder="Ej: 3100000000 Sin +57" required />
               </div>
               <div className="space-y-4">
                 <label className="text-sm font-medium text-indigo-200/65" htmlFor="ciudad">Ciudad</label>

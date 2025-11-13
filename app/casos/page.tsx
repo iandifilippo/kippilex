@@ -27,7 +27,7 @@ const locations = [
 // 2. Usamos la lista detallada de especialidades que proporcionaste
 const categories = [
   "Constitucional", "Administrativo", "Electoral", "Tributario o Fiscal", "Urbanístico", 
-  "Ambiental Público", "de la Función Pública", "de la Contratación Estatal", 
+  "Ambiental Público", "Función Pública", "Contratación Estatal", 
   "Municipal y Territorial", "Minero-Energético (Estatal)", "Civil", "Contratos", 
   "Responsabilidad civil", "Bienes", "Sucesiones y familia", "Obligaciones", 
   "Comercial o Mercantil", "Sociedades", "Títulos valores", "Contratos mercantiles", 
@@ -41,18 +41,18 @@ const categories = [
   "Internacional Público", "Internacional Privado", "Internacional Humanitario", 
   "Derechos Humanos", "Diplomático y Consular", "Migratorio", "Procesal Civil", 
   "Procesal Administrativo", "Procesal Constitucional", 
-  "Probatorio", "Arbitraje y Conciliación (MASC)", "de Familia", "de la Infancia y Adolescencia", 
+  "Probatorio", "Arbitraje y Conciliación (MASC)", "de Familia", "Infancia y Adolescencia", 
   "de Género y Diversidad", "a la Salud y Bioética Jurídica", "Rural y Agrario", 
   "Indígena y Pluralismo Jurídico", "Comunitario (CAN, MERCOSUR)", "Ambiental General", 
-  "de los Recursos Naturales", "Minero-Energético", "del Cambio Climático y Sostenibilidad", 
+  "de los Recursos Naturales", "Minero-Energético", "Cambio Climático y Sostenibilidad", 
   "del Agua y del Territorio", "Penal Militar", "Disciplinario", "Operacional Militar", 
   "Internacional Humanitario aplicado a las Fuerzas Armadas", "Informático", "Digital", 
-  "de la Protección de Datos Personales (Habeas Data)", "de la Ciberseguridad", 
-  "de la Inteligencia Artificial", "Legaltech y Automatización Jurídica", 
-  "de la Propiedad Intelectual y del Software", "Médico y Sanitario", "Deportivo", 
+  "Protección de Datos Personales (Habeas Data)", "Ciberseguridad", 
+  "Inteligencia Artificial", "Legaltech y Automatización Jurídica", 
+  "dPropiedad Intelectual y del Software", "Médico y Sanitario", "Deportivo", 
   "Marítimo y Aeronáutico", "Educativo", "Cultural y del Patrimonio", 
-  "de la Moda (Fashion Law)", "Animal y Ecológico", "del Entretenimiento y de Medios", 
-  "de la Responsabilidad del Estado", "Compliance y Ética Corporativa", "Cripto y Blockchain"
+  "dModa (Fashion Law)", "Animal y Ecológico", "Entretenimiento y de Medios", 
+  "Responsabilidad del Estado", "Compliance y Ética Corporativa", "Cripto y Blockchain"
 ];
 // --- FIN DE DATOS CORREGIDOS ---
 
@@ -69,8 +69,8 @@ export default function CasosPage() {
   };
 
   return (
-    <section className="relative bg-gray-950 text-gray-200 min-h-screen">
-      {/* Mini-Header visible en esta página */}
+<section className="bg-gray-950 text-gray-200 min-h-screen">
+          {/* Mini-Header visible en esta página */}
       <div className="sticky top-0 z-40 bg-gray-950/90 backdrop-blur-sm shadow-md">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center" aria-label="KippiLex">
