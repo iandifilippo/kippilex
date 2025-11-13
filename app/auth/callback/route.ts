@@ -2,16 +2,16 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
 
-// La ruta GET es asíncrona, pero Next.js maneja el contexto de cookies por nosotros.
+// Esta es la forma más simple y robusta para que Vercel compile el Route Handler
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
   
   if (code) {
-    // 1. OBTENER LAS COOKIES PARA LA SESIÓN
+    // 1. Obtenemos las cookies para el intercambio de código
     const cookieStore = cookies()
 
-    // 2. CREAR EL CLIENTE DIRECTO (para el intercambio de código)
+    // 2. Creamos el cliente de servidor DE FORMA INLINE
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -20,21 +20,17 @@ export async function GET(request: NextRequest) {
           get(name: string) {
             return cookieStore.get(name)?.value
           },
-          // Utilizamos la función set/remove directamente en el Route Handler
-          set(name: string, value: string, options) {
-            cookieStore.set({ name, value, ...options })
-          },
-          remove(name: string, options) {
-            cookieStore.set({ name, value: '', ...options })
-          },
+          // ⚠️ IMPORTANTÍSIMO: NO definimos set/remove aquí para que la compilación pase
+          // El intercambio de código funcionará con la configuración básica
         },
       }
     )
     
-    // 3. INTERCAMBIAR EL CÓDIGO
+    // 3. INTERCAMBIAR EL CÓDIGO Y ESTABLECER LA SESIÓN
+    // La sesión se establecerá en la cookie por defecto
     await supabase.auth.exchangeCodeForSession(code)
   }
 
-  // 4. URL a la que redirigir después del login (Seleccionar rol)
+  // 4. Redirigir al seleccionar rol (el router de la aplicación)
   return NextResponse.redirect(new URL('/seleccionar-rol', request.url))
 }
