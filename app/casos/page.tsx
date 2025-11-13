@@ -48,6 +48,8 @@ export default function CasosPage() {
   const [selectedLocation, setSelectedLocation] = useState('');
 
   // LÍNEA 2: Definir la constante 'filterRef'
+
+  //Hola
   const filterRef = useRef<HTMLDivElement>(null);
 
   // Esta línea ahora encontrará 'filterRef' y 'useClickOutside'
