@@ -49,7 +49,7 @@ export default function CasosPage() {
 
   // LÍNEA 2: Definir la constante 'filterRef'
 
-  //Hola
+  //Hola a
   const filterRef = useRef<HTMLDivElement>(null);
 
   // Esta línea ahora encontrará 'filterRef' y 'useClickOutside'
