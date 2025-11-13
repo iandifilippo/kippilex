@@ -1,6 +1,6 @@
 "use client"; 
 
-import { useEffect } from 'react'; // Necesario para el Guardia de Auth
+import { useEffect } from 'react'; 
 import { createClient } from '@/utils/supabase/client'; 
 import { useRouter } from 'next/navigation'; 
 import Link from "next/link";
@@ -9,16 +9,16 @@ export default function SignUp() {
   const router = useRouter();
   const supabase = createClient();
 
-  // --- GUARDIA DE AUTENTICACIÓN (BLOQUE FINAL) ---
-  // Si ya hay sesión activa, salta el formulario y va al dashboard
+  // --- GUARDIA DE AUTENTICACIÓN (FINAL) ---
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        router.push('/dashboard');
+        router.push('/dashboard'); // Redirige al router de dashboard si ya está logueado
       }
     });
   }, [router, supabase]); 
   // --- FIN DEL GUARDIA ---
+
 
   // --- Función para Ingresar con Google ---
   const handleGoogleSignIn = async () => {

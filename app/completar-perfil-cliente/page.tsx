@@ -98,6 +98,20 @@ export default function ClientRegistrationForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    
+    // --- VALIDACIÓN AÑADIDA ---
+    if (!formData.preferenciaContacto) {
+        alert("Por favor, selecciona cómo prefieres recibir las propuestas.");
+        setLoading(false);
+        return;
+    }
+    if (!/^\d{10,}$/.test(formData.whatsapp)) {
+        alert('El Número WhatsApp no es válido (solo números, mínimo 10 dígitos).');
+        setLoading(false);
+        return;
+    }
+    // --- FIN VALIDACIÓN ---
+
 
     const { user } = (await supabase.auth.getUser()).data;
 
@@ -105,13 +119,6 @@ export default function ClientRegistrationForm() {
       alert("Error: No se encontró la sesión. Por favor, ingresa de nuevo.");
       setLoading(false);
       return;
-    }
-    
-    // Validar que se haya seleccionado una preferencia de contacto
-    if (!formData.preferenciaContacto) {
-        alert("Por favor, selecciona cómo prefieres recibir las propuestas.");
-        setLoading(false);
-        return;
     }
 
     // Actualizamos la tabla 'profiles' con los datos del cliente
