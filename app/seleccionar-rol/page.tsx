@@ -37,9 +37,10 @@ export default function SeleccionarRol() {
     } else {
       // 3. ¡Éxito! REDIRECCIÓN FORZADA (El truco más robusto)
       if (role === 'abogado') {
-        window.location.href = '/completar-perfil-abogado'; // RUTA CORRECTA
+        window.location.href = '/completar-perfil-abogado'; // Correcto
       } else {
-        window.location.href = '/dashboard'; // RUTA CORRECTA para el cliente
+        // --- CORRECCIÓN FINAL: Cliente va al formulario de cliente ---
+        window.location.href = '/completar-perfil-cliente'; 
       }
     }
   };
