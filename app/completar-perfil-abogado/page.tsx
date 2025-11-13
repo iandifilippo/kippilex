@@ -41,8 +41,9 @@ const TERMS_AND_CONDITIONS_ES = [
   { title: "17. Contacto", content: "Para cualquier consulta, comuníquese con KippiLex a través de kippilex@gmail.com." },
 ];
 
-const TermsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  if (!isOpen) return null;
+// --- MODAL DE TÉRMINOS Y CONDICIONES (CORREGIDO PARA COMPATIBILIDAD) ---
+const TermsModal = (props) => {
+  if (!props.isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-950/75 backdrop-blur-sm transition-opacity">
@@ -50,7 +51,7 @@ const TermsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
         <div className="relative w-full rounded-2xl bg-gray-800 p-6 shadow-2xl">
           <div className="flex items-center justify-between border-b border-gray-700 pb-3">
             <h3 className="text-xl font-bold text-gray-100">Términos y Condiciones</h3>
-            <button onClick={onClose} className="rounded-full p-2 text-gray-400 transition hover:bg-gray-700 hover:text-white">
+            <button onClick={props.onClose} className="rounded-full p-2 text-gray-400 transition hover:bg-gray-700 hover:text-white">
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
@@ -63,7 +64,7 @@ const TermsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
             ))}
           </div>
           <button
-            onClick={onClose}
+            onClick={props.onClose}
             className="btn-sm mt-6 w-full bg-linear-to-t from-indigo-600 to-indigo-500 text-white shadow-lg"
           >
             Cerrar y Aceptar
@@ -73,6 +74,7 @@ const TermsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
     </div>
   );
 };
+
 // --- FIN DEL MODAL ---
 
 
