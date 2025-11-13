@@ -1,19 +1,35 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers'; 
 
-// --- Componente para las Tarjetas de Estadísticas (Con casing corregido) ---
+// --- Componente para las Tarjetas de Estadísticas ---
 const StatsCard = ({ title, value, unit, color }) => (
-  <div className className={`p-5 rounded-xl shadow-lg border ${color === 'blue' ? 'bg-indigo-500/10 border-indigo-400/30' : 'bg-gray-800/50 border-gray-700'}`}>
+  <div className={`p-5 rounded-xl shadow-lg border ${color === 'blue' ? 'bg-indigo-500/10 border-indigo-400/30' : 'bg-gray-800/50 border-gray-700'}`}>
     <h3 className="text-3xl font-bold text-gray-100">{value}</h3>
     <p className="text-xs text-gray-400">{title}</p> 
     <p className="text-sm text-indigo-300 mt-2">{unit}</p>
   </div>
 );
-// --- FIN del Componente StatsCard ---
+
+// --- FUNCIÓN HELPER PARA CREAR EL CLIENTE DE SERVIDOR (Integrado aquí) ---
+const createSupabaseServerClient = () => {
+    const cookieStore = cookies();
+    return createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                get: (name: string) => cookieStore.get(name)?.value,
+                set: (name: string, value: string, options) => cookieStore.set({ name, value, ...options }),
+                remove: (name: string, options) => cookieStore.set({ name, value: '', ...options }),
+            },
+        }
+    );
+};
 
 
 export default async function DashboardPage() {
-  const supabase = createClient();
+  const supabase = createSupabaseServerClient(); // Usamos el cliente integrado
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -75,7 +91,7 @@ export default async function DashboardPage() {
           <div className="flex flex-col items-center justify-center py-10">
             <svg className="w-12 h-12 text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5h6" /></svg>
             
-            <p className="text-lg text-gray-400 mb-6">Actualmente, no hay casos públicos que coincidan con tus especialidades.</p>
+            <p className="text-lg text-gray-400 mb-6">Actualmente, no hay casos públicos que coinciden con tus especialidades.</p>
             
             {isVerificationPending ? (
               <span className="text-red-400">🚨 La opción de ofertar está deshabilitada hasta completar la verificación.</span>

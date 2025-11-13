@@ -1,12 +1,12 @@
-// --- CÓDIGO COMPLETO Y FINAL DE LA PÁGINA DE REGISTRO DE ABOGADO ---
+// --- CÓDIGO FINAL: app/completar-perfil-abogado/page.tsx ---
 
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 
-// --- DEFINICIONES DE DATOS: CONSTANTES (Fuera de la función principal) ---
+// --- DEFINICIONES DE DATOS: CONSTANTES ---
 const COLOMBIAN_CITIES = [
   'Bogotá D.C.', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena', 'Cúcuta', 
   'Bucaramanga', 'Pereira', 'Santa Marta', 'Manizales', 'Neiva'
@@ -128,7 +128,7 @@ export default function LawyerRegistrationForm() {
     setLoading(true);
     setFormError(''); // Limpiar errores
 
-    // --- VALIDACIÓN (Se mantiene igual) ---
+    // --- VALIDACIÓN ---
     if (formData.especialidades.length === 0) {
         setFormError('Por favor, selecciona al menos una especialidad.');
         setLoading(false); return;
@@ -148,7 +148,7 @@ export default function LawyerRegistrationForm() {
     // --- FIN VALIDACIÓN ---
 
 
-    // 1. OBTENER USUARIO Y ARCHIVO (Se mantiene igual)
+    // 1. OBTENER USUARIO Y ARCHIVO
     const { user } = (await supabase.auth.getUser()).data;
     const file = formData.documento;
     
@@ -158,7 +158,7 @@ export default function LawyerRegistrationForm() {
         return;
     }
 
-    // 2. LÓGICA DE SUBIDA DE ARCHIVOS (Se mantiene igual)
+    // 2. LÓGICA DE SUBIDA DE ARCHIVOS
     const fileName = `${user.id}/${Date.now()}_documentos.pdf`; 
     
     const { error: uploadError } = await supabase.storage
@@ -178,7 +178,7 @@ export default function LawyerRegistrationForm() {
     const fileUrl = fileUrlData.publicUrl;
 
 
-    // 3. LÓGICA DE ACTUALIZACIÓN DEL PERFIL EN LA BD (Se mantiene igual)
+    // 3. LÓGICA DE ACTUALIZACIÓN DEL PERFIL EN LA BD
     const { error: updateError } = await supabase
         .from('profiles')
         .update({
@@ -199,8 +199,8 @@ export default function LawyerRegistrationForm() {
     setLoading(false);
     
     if (!updateError) {
-      // --- CORRECCIÓN FINAL: Redirigimos a la nueva ruta /panel ---
-      router.push('/panel');
+      // ÉXITO: Redirigir al Dashboard (que tiene el banner)
+      router.push('/dashboard');
     } else {
         setFormError('Error al guardar datos finales. Revisa la consola.');
         console.error('Error de BD al actualizar perfil:', updateError);
