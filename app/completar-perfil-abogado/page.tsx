@@ -1,8 +1,8 @@
-// --- CÓDIGO COMPLETO Y FINAL DE LA PÁGINA DE REGISTRO DE ABOGADO ---
+// --- CÓDIGO COMPLETO Y FINAL DE LA PÁGINA DE REGISTRO DE ABOGADO (CON FIXES DE TS) ---
 
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 
@@ -102,19 +102,34 @@ export default function LawyerRegistrationForm() {
   const [openCategory, setOpenCategory] = useState('');
 
   // Lógica para obtener el nombre de Google (se mantiene simplificada)
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user && data.user.user_metadata?.full_name) {
+        const [firstName, ...lastNameParts] = data.user.user_metadata.full_name.split(' ');
+        setFormData(prev => ({
+          ...prev,
+          nombre: firstName || '',
+          apellido: lastNameParts.join(' ') || '',
+        }));
+      }
+    });
+  }, [supabase]); // Dependencia corregida
 
+  // --- CORRECCIÓN DE TYPESCRIPT 3: Tipado de 'checked' ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    // --- CORRECCIÓN DE TYPESCRIPT 3: Tipado de 'checked' ---
-    const checked = (e.target as HTMLInputElement).checked;
 
     if (type === 'file') {
       const target = e.target as HTMLInputElement;
       setFormData(prev => ({ ...prev, [name]: target.files ? target.files[0] : null }));
+    } else if (type === 'checkbox') {
+      const target = e.target as HTMLInputElement;
+      setFormData(prev => ({ ...prev, [name]: target.checked }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
+  // --- FIN DE CORRECCIÓN 3 ---
 
   const handleCheckboxChange = (subspecName: string) => {
     const isSelected = formData.especialidades.includes(subspecName);
@@ -154,10 +169,10 @@ export default function LawyerRegistrationForm() {
 
 
     // 1. OBTENER USUARIO Y ARCHIVO
-    const { user } = (await supabase.auth.getUser()).data;
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     const file = formData.documento;
     
-    if (!user || !file) {
+    if (userError || !user || !file) {
         setFormError("Error crítico de sesión o archivo.");
         setLoading(false);
         return;
