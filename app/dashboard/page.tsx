@@ -70,7 +70,8 @@ export default async function DashboardPage() {
                   ¡Verificación Pendiente!
               </h3>
               <p className="text-sm text-yellow-200/80">
-                  Puedes **ver las ofertas de casos disponibles** en el panel inferior, pero no podrás ofertar o contactar clientes hasta que tu cuenta sea activada.
+                  Puedes ver las ofertas de casos disponibles en el panel inferior, pero no podrás ofertar o contactar clientes hasta que tu cuenta sea activada.
+                  Esto tomará un lapso de 1 a 4 horas, mientras nuestro equipo verifica tu tarjeta profesional.
               </p>
           </div>
         )}
