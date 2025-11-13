@@ -1,5 +1,5 @@
 // RUTA: app/seleccionar-rol/page.tsx
-// ESTADO: CORRECTO (Este archivo no tiene errores)
+// ESTADO: CORREGIDO (Usa 'upsert' para crear el perfil)
 
 "use client";
 
@@ -26,17 +26,23 @@ export default function SeleccionarRol() {
       return;
     }
 
-    const { error: updateError } = await supabase
+    // --- CORRECCIÓN CLAVE: UPSERT ---
+    // Esto CREA el perfil si no existe y guarda el ROL
+    const { error: upsertError } = await supabase
       .from('profiles')
-      .update({ role: role })
-      .eq('id', user.id); 
+      .upsert({
+        id: user.id, // El ID del usuario de auth
+        role: role,  // El rol seleccionado
+        nombre: user.user_metadata.full_name?.split(' ')[0] || user.user_metadata.name || '',
+        apellido: user.user_metadata.full_name?.split(' ').slice(1).join(' ') || '',
+        avatar_url: user.user_metadata.avatar_url,
+      });
 
-    if (updateError) {
+    if (upsertError) {
       setErrorMsg('Hubo un error al guardar tu elección. Por favor, intenta de nuevo.');
-      console.error(updateError);
+      console.error(upsertError);
       setLoading(false);
     } else {
-      // Redirección forzada
       if (role === 'abogado') {
         window.location.href = '/completar-perfil-abogado';
       } else {
@@ -49,7 +55,6 @@ export default function SeleccionarRol() {
     <section>
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="py-12 md:py-20">
-          {/* Encabezado */}
           <div className="mx-auto max-w-3xl pb-12 text-center">
             <h1 className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,var(--color-gray-200),var(--color-indigo-200),var(--color-gray-50),var(--color-indigo-300),var(--color-gray-200))] bg-[length:200%_auto] bg-clip-text font-nacelle text-3xl font-semibold text-transparent md:text-4xl">
               ¿Cómo deseas utilizar KippiLex?
@@ -58,15 +63,12 @@ export default function SeleccionarRol() {
               Selecciona tu rol para comenzar
             </p>
           </div>
-
-          {/* Contenedor de Tarjetas */}
           <div className="mx-auto grid max-w-sm gap-8 sm:max-w-none sm:grid-cols-2 lg:max-w-3xl">
-
             {/* Tarjeta 1: Soy Abogado */}
             <button
               onClick={() => handleRoleSelection('abogado')}
               disabled={loading}
-              className="group relative flex flex-col items-center rounded-2xl bg-linear-to-br from-gray-900/50 via-gray-800/25 to-gray-900/50 p-8 text-center backdrop-blur-xs transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear_gradient(white_0_0)] hover:before:border-indigo-500/50 disabled:opacity-50"
+              className="group relative flex flex-col items-center rounded-2xl bg-linear-to-br from-gray-900/50 via-gray-800/25 to-gray-900/50 p-8 text-center backdrop-blur-xs transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:before:border-indigo-500/50 disabled:opacity-50"
             >
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/20">
                 <svg className="h-8 w-8 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
@@ -79,12 +81,11 @@ export default function SeleccionarRol() {
                 Registrarme como Abogado
               </span>
             </button>
-
             {/* Tarjeta 2: Necesito Abogado (Cliente) */}
             <button
               onClick={() => handleRoleSelection('cliente')}
               disabled={loading}
-              className="group relative flex flex-col items-center rounded-2xl bg-linear-to-br from-gray-900/50 via-gray-800/25 to-gray-900/50 p-8 text-center backdrop-blur-xs transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear_gradient(white_0_0)] hover:before:border-indigo-500/50 disabled:opacity-50"
+              className="group relative flex flex-col items-center rounded-2xl bg-linear-to-br from-gray-900/50 via-gray-800/25 to-gray-900/50 p-8 text-center backdrop-blur-xs transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:before:border-indigo-500/50 disabled:opacity-50"
             >
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/20">
                 <svg className="h-8 w-8 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
@@ -97,14 +98,10 @@ export default function SeleccionarRol() {
                 Buscar un Abogado
               </span>
             </button>
-
           </div>
-
-          {/* Mensaje de Error */}
           {errorMsg && (
             <p className="mt-8 text-center text-red-500">{errorMsg}</p>
           )}
-
         </div>
       </div>
     </section>

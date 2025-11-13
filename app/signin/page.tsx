@@ -1,15 +1,17 @@
+// RUTA: app/signin/page.tsx
+// ESTADO: CORREGIDO (Arregla el Bug #1)
+
 "use client";
 
 import { useEffect } from 'react'; 
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link'; // Importamos Link
 
 export default function SignIn() {
   const router = useRouter();
   const supabase = createClient();
 
-  // --- GUARDIA DE AUTENTICACIÓN (Se mantiene) ---
-  // Si la sesión está activa, redirige inmediatamente al router del dashboard.
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
@@ -17,10 +19,7 @@ export default function SignIn() {
       }
     });
   }, [router, supabase]); 
-  // --- FIN DEL GUARDIA ---
 
-
-  // --- Función para Ingresar con Google (Se mantiene) ---
   const handleGoogleSignIn = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -35,14 +34,12 @@ export default function SignIn() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="py-12 md:py-20">
           
-          {/* Section header (Se mantiene) */}
           <div className="pb-12 text-center">
             <h1 className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,var(--color-gray-200),var(--color-indigo-200),var(--color-gray-50),var(--color-indigo-300),var(--color-gray-200))] bg-[length:200%_auto] bg-clip-text font-nacelle text-3xl font-semibold text-transparent md:text-4xl">
               Bienvenido de vuelta
             </h1>
           </div>
           
-          {/* Contenedor solo para el botón de Google */}
           <div className="mx-auto max-w-[400px]">
             <button
               type="button" 
@@ -52,6 +49,15 @@ export default function SignIn() {
               Ingresar con Google
             </button>
           </div>
+
+          {/* --- ESTA ES LA CORRECCIÓN (Añadir el link de vuelta) --- */}
+          <div className="mt-6 text-center text-sm text-indigo-200/65">
+            ¿No tienes una cuenta?{" "}
+            <Link className="font-medium text-indigo-500" href="/signup">
+              Regístrate
+            </Link>
+          </div>
+          {/* --- FIN DE LA CORRECCIÓN --- */}
 
         </div>
       </div>

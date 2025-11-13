@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image"; // 1. Mantenemos la importación de 'Image'
+import Image from "next/image";
+import Link from 'next/link'; // 1. Importamos Link para la navegación
 
 // (Las importaciones del video siguen comentadas)
 // import VideoThumb from "@/public/images/hero-image-01.jpg";
@@ -13,7 +14,7 @@ export default function HeroHome() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         {/* Contenido principal */}
         <div className="py-12 md:py-20">
-          {/* Encabezado (esto sigue igual) */}
+          {/* Encabezado */}
           <div className="pb-12 text-center md:pb-20">
             <h1
               className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,var(--color-indigo-200),var(--color-gray-50),var(--color-indigo-300))] bg-[length:200%_auto] bg-clip-text pb-5 font-nacelle text-4xl font-semibold text-transparent md:text-5xl"
@@ -32,45 +33,58 @@ export default function HeroHome() {
                 transparencia, rapidez y confianza.
               </p>
               <div className="mx-auto max-w-xs sm:flex sm:max-w-none sm:justify-center">
-                {/* Botones (esto sigue igual) */}
+                
+                {/* --- INICIO DE LA EDICIÓN DE BOTONES --- */}
+
+                {/* Botón 1: "Comenzar ahora" -> /signup */}
                 <div data-aos="fade-up" data-aos-delay={400}>
-                  <motion.a
+                  <motion.div
                     whileHover={{
                       scale: 1.05,
                       boxShadow: "0 0 25px rgba(99,102,241,0.6)",
                     }}
                     whileTap={{ scale: 0.97 }}
                     transition={{ duration: 0 }}
-                    className="btn group mb-4 w-full bg-gradient-to-t from-indigo-600 to-indigo-500 text-white shadow-lg rounded-full sm:mb-0 sm:w-auto"
-                    href="#contacto"
                   >
-                    <span className="relative inline-flex items-center">
-                      Comenzar ahora
-                      <span className="ml-1 tracking-normal text-white/50 transition-transform group-hover:translate-x-0.5">
-                        →
+                    <Link
+                      className="btn group mb-4 w-full bg-gradient-to-t from-indigo-600 to-indigo-500 text-white shadow-lg rounded-full sm:mb-0 sm:w-auto"
+                      href="/signup" // 2. CORREGIDO: Apunta a /signup
+                    >
+                      <span className="relative inline-flex items-center">
+                        Comenzar ahora
+                        <span className="ml-1 tracking-normal text-white/50 transition-transform group-hover:translate-x-0.5">
+                          →
+                        </span>
                       </span>
-                    </span>
-                  </motion.a>
+                    </Link>
+                  </motion.div>
                 </div>
+                
+                {/* Botón 2: "Registrarse" -> "Ver Casos" -> /casos */}
                 <div data-aos="fade-up" data-aos-delay={600}>
-                  <motion.a
+                  <motion.div
                     whileHover={{
                       scale: 1.05,
                       boxShadow: "0 0 25px rgba(129,140,248,0.5)",
                     }}
                     whileTap={{ scale: 0.97 }}
                     transition={{ duration: 0 }}
-                    className="btn relative w-full bg-gradient-to-b from-gray-800 to-gray-700 text-gray-200 border border-gray-700 shadow-lg rounded-full sm:ml-4 sm:w-auto"
-                    href="#registro"
                   >
-                    Registrarse
-                  </motion.a>
+                    <Link
+                      className="btn relative w-full bg-gradient-to-b from-gray-800 to-gray-700 text-gray-200 border border-gray-700 shadow-lg rounded-full sm:ml-4 sm:w-auto"
+                      href="/casos" // 3. CORREGIDO: Apunta a /casos
+                    >
+                      Ver Casos {/* 4. CORREGIDO: Texto del botón */}
+                    </Link>
+                  </motion.div>
                 </div>
+                {/* --- FIN DE LA EDICIÓN DE BOTONES --- */}
+
               </div>
             </div>
           </div>
 
-          {/* --- INICIO DE LA EDICIÓN DE TAMAÑO --- */}
+          {/* Imagen (sin cambios) */}
           <div
             className="relative flex justify-center items-center mb-16"
             data-aos="fade-up"
@@ -78,24 +92,13 @@ export default function HeroHome() {
           >
             <Image
               src="/images/kippilex1-transparent.png"
-              
-              // --- CAMBIO 1: 'width' reducido ---
-              // (Mantenemos la proporción 16:9)
               width={512} 
-              
-              // --- CAMBIO 2: 'height' reducido ---
               height={288} 
-
               alt="Plataforma KippiLex"
-
-              // --- CAMBIO 3: 'max-w' reducido ---
-              // Cambiamos de 'max-w-xl' (768px) a 'max-w-md' (512px)
               className="w-full h-auto max-w-md" 
-              
               priority={true}
             />
           </div>
-          {/* --- FIN DE LA EDICIÓN --- */}
         </div>
       </div>
     </section>
