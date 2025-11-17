@@ -7,16 +7,22 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
   
   if (code) {
-    // 💡 CORRECCIÓN CRUCIAL: Añadir 'await' porque createSupabaseServerClient es ahora async
     const supabase = await createSupabaseServerClient(); 
     
     // 2. Intercambio de Código por Sesión
     const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (!error && sessionData.user) {
-      // 3. ¡SESIÓN CREADA CON ÉXITO! Ahora verificamos el perfil.
-      
-      const user = sessionData.user;
+    // MANEJO DE ERROR (Líneas 17-20)
+    if (error) { // Si hay un error de Supabase
+      // El error existe y puede tener un mensaje.
+      console.error("Supabase Auth Error en Callback:", error.message);
+      return NextResponse.redirect(`${origin}/signin?error=${encodeURIComponent(error.message)}`);
+    }
+
+    // MANEJO DE ÉXITO (Línea 22 en adelante)
+    if (sessionData && sessionData.user) { // Si NO hubo error Y hay datos de sesión/usuario
+      // user NO es 'null' dentro de este bloque
+      const user = sessionData.user; 
 
       // Consultamos la tabla 'profiles' para ver si ya tiene un rol asignado.
       const { data: profile, error: profileError } = await supabase
@@ -35,7 +41,7 @@ export async function GET(request: Request) {
     }
   }
 
-  // 5. CASO ERROR: Si hay un error de Supabase o no hay código, redirigimos al login.
+  // 5. CASO FALLO FINAL: Si el 'code' no existía o si el proceso falló de forma inesperada (p. ej., sessionData.user era null)
   console.error('Error en el callback de autenticación.', 'Código no encontrado o error de sesión.');
   return NextResponse.redirect(`${origin}/signin?error=auth_error`);
 }
