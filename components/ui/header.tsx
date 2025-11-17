@@ -10,7 +10,8 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import type { Session } from '@supabase/supabase-js';
 import { motion } from 'framer-motion';
-
+import { signOutServer } from '@/app/auth/actions';
+import { useFormStatus } from 'react-dom';
 type Profile = {
   nombre: string;
 }
@@ -23,6 +24,7 @@ export default function Header() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // --- ARREGLO CLICK-OUTSIDE ---
   const menuRef = useRef<HTMLDivElement>(null);
@@ -56,6 +58,7 @@ export default function Header() {
         const { data: profileData } = await supabase.from('profiles').select('nombre').eq('id', session.user.id).single();
         setProfile(profileData);
       }
+      setIsLoading(false);
     };
     fetchData();
     const { data: authListener } = supabase.auth.onAuthStateChange(
@@ -72,12 +75,7 @@ export default function Header() {
     return () => { authListener?.subscription.unsubscribe(); };
   }, [supabase, router]);
 
-  // --- ARREGLO CERRAR SESIÓN ---
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    setMenuOpen(false);
-    window.location.href = '/'; // Forzar refresh
-  };
+  
   // --- FIN ARREGLO CERRAR SESIÓN ---
 
   const toggleMenu = () => { setMenuOpen(!menuOpen); setNotificationsOpen(false); };
@@ -160,14 +158,8 @@ export default function Header() {
                         <MenuItem href="/dashboard" icon={<CaseIcon />} label="Mis Casos" />
                         <MenuItem href="/dashboard/perfil" icon={<UserIcon />} label="Mi Perfil" />
                         <MenuItem href="/dashboard/configuracion" icon={<SettingsIcon />} label="Configuraciones" />
-                        <li>
-                          <button
-                            onClick={handleSignOut}
-                            className="flex w-full items-center gap-3 rounded-md p-2 text-sm text-gray-700 hover:bg-gray-100"
-                          >
-                            <SignOutIcon />
-                            <span>Cerrar Sesión</span>
-                          </button>
+                        <li> 
+                          <SignOutButton /> 
                         </li>
                       </ul>
                     </div>
@@ -213,6 +205,37 @@ const MenuItem = ({ href, icon, label }: { href: string; icon: React.ReactNode; 
     </Link>
   </li>
 );
+const SubmitButton = () => {
+    // 💡 Hook para detectar si la Server Action está pendiente
+    const { pending } = useFormStatus();
+
+    return (
+        <button
+            type="submit"
+            // Deshabilita el botón y cambia el estilo mientras está pendiente
+            disabled={pending} 
+            className="flex w-full items-center gap-3 rounded-md p-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+            {pending ? (
+                // 💡 SPINNER: Muestra un spinner cuando está cargando
+                <div className="h-5 w-5 border-2 border-t-2 border-gray-400 border-t-indigo-500 rounded-full animate-spin"></div>
+            ) : (
+                // ICONO NORMAL
+                <SignOutIcon />
+            )}
+            <span>{pending ? 'Cerrando Sesión...' : 'Cerrar Sesión'}</span>
+        </button>
+    );
+};
+
+const SignOutButton = () => {
+    return (
+        <form action={signOutServer} className="w-full">
+            {/* 💡 USAMOS EL COMPONENTE CON ESTADO DE CARGA */}
+            <SubmitButton />
+        </form>
+    );
+};
 const BellIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
   <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.017 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />

@@ -1,39 +1,35 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-export const createSupabaseServerClient = () => {
-  const cookieStore = cookies();
-
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          // CORRECCIÓN: Forzamos el tipo 'any' para bypass el error de tipos
-          return (cookieStore as any).get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            // CORRECCIÓN: Forzamos el tipo 'any'
-            (cookieStore as any).set(name, value, options);
-          } catch (error) {
-            // The `set` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            // CORRECCIÓN: Forzamos el tipo 'any'
-            (cookieStore as any).delete(name, options);
-          } catch (error) {
-            // The `delete` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
-          }
-        },
-      },
-    }
-  );
+// 💡 CONVERTIMOS LA FUNCIÓN EN ASÍNCRONA Y AÑADIMOS AWAIT
+export const createSupabaseServerClient = async () => { 
+  const cookieStore = cookies(); // ¡No necesita 'await' aquí, ya que cookies() no devuelve una Promesa!
+                                 // Pero la función en sí debe ser 'async' para el runtime de Next.js.
+  
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return (cookieStore as any).get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          try {
+            (cookieStore as any).set(name, value, options);
+          } catch (error) {
+            // Se ignora el error de 'set' en Server Components
+          }
+        },
+        remove(name: string, options: CookieOptions) {
+          try {
+            // CORRECCIÓN CLAVE: Usamos .delete(name) sin 'options'
+            (cookieStore as any).delete(name); 
+          } catch (error) {
+            // Se ignora el error de 'delete' en Server Components
+          }
+        },
+      },
+    }
+  );
 };

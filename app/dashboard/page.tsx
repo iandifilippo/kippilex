@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import React from 'react';
+
 // CORRECCIÓN: Importamos la función centralizada en lugar de re-crearla aquí
 import { createSupabaseServerClient } from '@/utils/supabase/server'; 
 
@@ -24,7 +25,7 @@ const StatsCard = ({ title, value, unit, color }: StatsCardProps) => (
 
 export default async function DashboardPage() {
   // CORRECCIÓN: Usamos la función importada
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
