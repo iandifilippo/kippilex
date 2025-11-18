@@ -1,25 +1,34 @@
-import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   const { userId, password } = await req.json();
 
-  const supabase = createSupabaseServerClient();
-
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: userId,
-    password,
-  });
-
-  if (error) {
+  // Validación con variables env
+  if (
+    userId !== process.env.ADMIN_USER ||
+    password !== process.env.ADMIN_PASS
+  ) {
     return NextResponse.json(
       { message: "Credenciales inválidas" },
       { status: 401 }
     );
   }
 
-  return NextResponse.json(
+  // 🔥 Crear respuesta
+  const response = NextResponse.json(
     { message: "Autenticado" },
     { status: 200 }
   );
+
+  // 🔥 Crear cookie HTTP only válida para todo /admin/*
+  response.cookies.set({
+    name: "admin_session",
+    value: "authenticated",
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60 * 12, // 12 horas
+  });
+
+  return response;
 }

@@ -1,81 +1,86 @@
-// RUTA: middleware.ts (en la raíz del proyecto)
-// ESTADO: CORREGIDO para manejar rutas de ADMIN
-
-import { NextResponse, type NextRequest } from 'next/server'
-import { createSupabaseMiddlewareClient } from '@/utils/supabase/middleware'
+// RUTA: middleware.ts
+import { NextResponse, type NextRequest } from "next/server";
+import { createSupabaseMiddlewareClient } from "@/utils/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  const { supabase, response } = createSupabaseMiddlewareClient(request)
-  const { data: { session } } = await supabase.auth.getSession() // ¡Refresca la sesión aquí!
-  const pathname = request.nextUrl.pathname
+  const url = request.nextUrl.clone();
+  const { supabase, response } = createSupabaseMiddlewareClient(request);
 
-  // -------------------------------------------------------------
-  // 1. LÓGICA ESPECÍFICA PARA ADMINISTRADOR
-  // -------------------------------------------------------------
-  const isAdminRoute = pathname.startsWith('/admin/dashboard')
-  const isAdminLogin = pathname === '/admin/login'
+  // Refresca sesión ANTES de cualquier lógica
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (isAdminRoute || isAdminLogin) {
-    const { data: { user } } = await supabase.auth.getUser()
+  const pathname = request.nextUrl.pathname;
 
-    if (!user) {
-      // Si no está logueado e intenta ir al dashboard, redirigir al login
-      if (isAdminRoute) {
-        return NextResponse.redirect(new URL('/admin/login', request.url))
-      }
-      return response // Permite la entrada a /admin/login
-    }
-    
-    // Si está logueado e intenta ir a /admin/login, redirigir al dashboard
-    if (isAdminLogin) {
-      return NextResponse.redirect(new URL('/admin/dashboard', request.url))
-    }
-    
-    // Si está logueado en el dashboard, se confía en el Server Component para verificar el rol 'admin'
-    return response
-  }
+  // -------------------------------------------------------------
+  // 1. RUTAS DE ADMIN
+  // -------------------------------------------------------------
+  const isAdminDashboard = pathname.startsWith("/admin/dashboard");
+  const isAdminLogin = pathname === "/admin/login";
 
-  // -------------------------------------------------------------
-  // 2. LÓGICA GENERAL (USUARIOS NORMALES)
-  // -------------------------------------------------------------
-  const publicRoutes = ['/', '/casos', '/auth/callback', '/reset-password']
-  const authRoutes = ['/signin', '/signup']
+  if (isAdminDashboard || isAdminLogin) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  // --- CASO 1: Usuario NO está logueado ---
-  if (!session) {
-    if (!publicRoutes.includes(pathname) && !authRoutes.includes(pathname)) {
-      return NextResponse.redirect(new URL('/signin', request.url))
-    }
-    return response
-  }
+    if (!user) {
+      if (isAdminDashboard) {
+        url.pathname = "/admin/login";
+        return NextResponse.redirect(url);
+      }
+      return response; // login público
+    }
 
-  // --- CASO 2: Usuario SÍ está logueado ---
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', session.user.id)
-    .single()
+    if (isAdminLogin) {
+      url.pathname = "/admin/dashboard";
+      return NextResponse.redirect(url);
+    }
 
-  // 2a: Usuario logueado, PERO SIN ROL
-  if (!profile || !profile.role) {
-    if (pathname === '/seleccionar-rol') {
-      return response
-    }
-    return NextResponse.redirect(new URL('/seleccionar-rol', request.url))
-  }
+    return response;
+  }
 
-  // 2b: Usuario logueado Y CON ROL
-  // Si intenta ir a /signin, /signup, o /seleccionar-rol
-  if (authRoutes.includes(pathname) || pathname === '/seleccionar-rol') {
-     return NextResponse.redirect(new URL('/dashboard', request.url))
-  }
-  
-  return response 
+  // -------------------------------------------------------------
+  // 2. USUARIOS NORMALES
+  // -------------------------------------------------------------
+  const publicRoutes = ["/", "/casos", "/auth/callback", "/reset-password"];
+  const authRoutes = ["/signin", "/signup"];
+
+  // Usuario NO logueado
+  if (!session) {
+    if (!publicRoutes.includes(pathname) && !authRoutes.includes(pathname)) {
+      url.pathname = "/signin";
+      return NextResponse.redirect(url);
+    }
+    return response;
+  }
+
+  // Usuario logueado — obtener perfil
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", session.user.id)
+    .single();
+
+  // Sin rol aún
+  if (!profile || !profile.role) {
+    if (pathname === "/seleccionar-rol") return response;
+
+    url.pathname = "/seleccionar-rol";
+    return NextResponse.redirect(url);
+  }
+
+  // Logueado y con rol — evitar volver a rutas públicas
+  if (authRoutes.includes(pathname) || pathname === "/seleccionar-rol") {
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  return response;
 }
 
 export const config = {
-  matcher: [
-    // Incluye todas las rutas excepto estáticos, imágenes, y favicon.ico
-    '/((?!_next/static|_next/image|favicon.ico).*)',
-  ],
-}
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico).*)",
+  ],
+};
