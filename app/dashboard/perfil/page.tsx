@@ -105,7 +105,7 @@ export default function PerfilPage() {
       
       <div className="rounded-2xl border border-gray-800/50 bg-gray-900/50 p-6 shadow-lg flex items-center gap-6 mb-8">
         
-        <div className="relative flex-shrink-0">
+        <div className="relative shrink-0">
           <Image
             src={profile.avatar_url || user.user_metadata?.avatar_url || '/images/default-avatar.png'}
             width={96}

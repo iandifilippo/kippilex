@@ -2,46 +2,51 @@ import { createSupabaseServerClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
-  // 1. Inicialización y Extracción del Código
-  const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get('code');
-  
-  if (code) {
-    const supabase = await createSupabaseServerClient(); 
-    
-    // 2. Intercambio de Código por Sesión
-    const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code);
+  // 1. Inicialización y Extracción del Código
+  const { searchParams, origin } = new URL(request.url);
+  const code = searchParams.get('code');
+  
+  // URL de Redirección de Fallo (se usa si 'code' falta o si la sesión falla)
+  const defaultErrorRedirect = NextResponse.redirect(`${origin}/signin?error=auth_error`);
 
-    // MANEJO DE ERROR (Líneas 17-20)
-    if (error) { // Si hay un error de Supabase
-      // El error existe y puede tener un mensaje.
-      console.error("Supabase Auth Error en Callback:", error.message);
-      return NextResponse.redirect(`${origin}/signin?error=${encodeURIComponent(error.message)}`);
-    }
+  if (!code) {
+    console.error('Error en el callback de autenticación: Código no encontrado.');
+    return defaultErrorRedirect;
+  }
 
-    // MANEJO DE ÉXITO (Línea 22 en adelante)
-    if (sessionData && sessionData.user) { // Si NO hubo error Y hay datos de sesión/usuario
-      // user NO es 'null' dentro de este bloque
-      const user = sessionData.user; 
+  const supabase = await createSupabaseServerClient(); 
+  
+  // 2. Intercambio de Código por Sesión
+  const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code);
 
-      // Consultamos la tabla 'profiles' para ver si ya tiene un rol asignado.
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
+  // MANEJO DE ERROR (Supabase)
+  if (error) { 
+    console.error("Supabase Auth Error en Callback:", error.message);
+    // Usamos el mismo redirect pero con el mensaje específico
+    return NextResponse.redirect(`${origin}/signin?error=${encodeURIComponent(error.message)}`);
+  }
 
-      if (profile && profile.role) {
-        // 4A. CASO ÉXITO: El usuario ya tiene un rol. Lo mandamos al dashboard.
-        return NextResponse.redirect(`${origin}/dashboard`);
-      } else {
-        // 4B. CASO NECESARIO: Es un usuario nuevo o le falta el rol. Lo mandamos a seleccionar rol.
-        return NextResponse.redirect(`${origin}/seleccionar-rol`);
-      }
-    }
-  }
+  // 3. MANEJO DE ÉXITO y Tipado: Aseguramos que 'user' exista antes de continuar
+  const user = sessionData?.user;
+  
+  if (!user) {
+    console.error('Error en el callback de autenticación: Sesión o usuario nulo después del intercambio.');
+    return defaultErrorRedirect;
+  }
 
-  // 5. CASO FALLO FINAL: Si el 'code' no existía o si el proceso falló de forma inesperada (p. ej., sessionData.user era null)
-  console.error('Error en el callback de autenticación.', 'Código no encontrado o error de sesión.');
-  return NextResponse.redirect(`${origin}/signin?error=auth_error`);
+  // 4. Consultamos el perfil para determinar la ruta
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role) {
+    // 4A. CASO ÉXITO: Usuario con rol existente.
+    return NextResponse.redirect(`${origin}/dashboard`);
+  } else {
+    // 4B. CASO NECESARIO: Usuario nuevo o sin rol.
+    return NextResponse.redirect(`${origin}/seleccionar-rol`);
+  }
 }
+// El archivo debe terminar AQUÍ. No debe haber ninguna línea o carácter después de esta llave.

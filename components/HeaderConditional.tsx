@@ -22,7 +22,11 @@ export default function HeaderConditional() {
     '/seleccionar-rol',
     '/completar-perfil-abogado',
     '/completar-perfil-cliente',
-    '/reset-password'
+    '/reset-password',
+    '/admin',
+    '/login',
+    '/admin/login',
+    '/admin/dashboard'
   ];
 
   if (hiddenRoutes.includes(normalizedPathname)) {
