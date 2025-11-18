@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import AdminAuthGuard from './AdminAuthGuard';
 import VerificationList from './_components/VerificationList';
 import { createSupabaseServerClient } from '@/utils/supabase/server';
