@@ -227,19 +227,20 @@ export default function LawyerRegistrationForm() {
 
         // 3. Registrar Documento en BD
         const { error: insertDocError } = await supabase
-            .from('documents')
-            .insert({
-                user_id: user.id,
-                storage_path: fileName, 
-                document_type: 'verification', 
-            });
+  .from('documents')
+  .insert({
+    user_id: user.id,
+    storage_path: fileName,
+    document_type: 'verification',
+    created_at: new Date().toISOString(),
+  })
 
-        if (insertDocError) {
-            console.error('Error al registrar documento en BD:', insertDocError);
-            setFormError(`Error al registrar documento en BD: ${insertDocError.message}`);
-            setLoading(false);
-            return; 
-        }
+if (insertDocError) {
+  console.error('Error insertando en documents:', insertDocError);
+  setFormError('Error al registrar el documento de verificación. Contacta al admin.');
+  setLoading(false);
+  return;
+}
 
         // 4. Actualizar Perfil
         const { error: updateError } = await supabase

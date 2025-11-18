@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { verifyLawyer } from '@/app/actions/admin'; // <-- ESTA ES LA RUTA CORRECTA
+import { verifyLawyer } from '../../../actions/admin';
 import { IoCheckmarkCircleOutline, IoCloseCircleOutline, IoDocumentOutline, IoClose } from "react-icons/io5";
 
 interface Lawyer {
