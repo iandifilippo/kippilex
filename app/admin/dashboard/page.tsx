@@ -1,24 +1,17 @@
 import AdminAuthGuard from './AdminAuthGuard';
-import VerificationList from './_components/VerificationList'; 
+import VerificationList from './_components/VerificationList';
 import { createSupabaseServerClient } from '@/utils/supabase/server';
-
-// Define el tipo para la lista
-interface LawyerProfile {
-    id: string;
-    nombre: string;
-    apellido: string;
-    document_url?: string; 
-}
+import { LawyerProfile } from '@/types/LawyerProfile';
 
 // Fetch asincrónico dentro del contenido
 async function DashboardContent() {
 
     const supabase = createSupabaseServerClient();
 
-    // FIX: Quitamos "email" porque NO existe en profiles
+    // 📌 Traemos SOLO los campos que existen en la tabla
     const { data: pendingLawyers, error } = await supabase
         .from('profiles')
-        .select('id, nombre, apellido') 
+        .select('id, nombre, apellido, email')
         .eq('role', 'abogado')
         .eq('status', 'pending_verification')
         .returns<LawyerProfile[]>();
@@ -47,7 +40,7 @@ async function DashboardContent() {
 export default function AdminDashboardPage() {
     return (
         <AdminAuthGuard>
-            <DashboardContent /> 
+            <DashboardContent />
         </AdminAuthGuard>
     );
 }

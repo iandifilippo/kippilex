@@ -1,21 +1,11 @@
-// app/admin/dashboard/_components/VerificationList.tsx
-
 "use client";
 
 import React, { useState } from 'react';
-import { verifyLawyer } from '../../../actions/admin'; // Asegúrate que la ruta sea correcta
+import { verifyLawyer } from '../../../actions/admin';
 import { IoCheckmarkCircleOutline, IoCloseCircleOutline } from "react-icons/io5";
+import { LawyerProfile } from '@/types/LawyerProfile';
 
-// Define el tipo de dato que esperas de Supabase
-interface LawyerProfile {
-    id: string;
-    nombre: string;
-    apellido: string;
-    email: string;
-    // Otros campos que necesites mostrar (ej: especialidades, tarjeta profesional)
-}
-
-// Define los props que recibirá el componente
+// Props del componente
 interface VerificationListProps {
     pendingLawyers: LawyerProfile[];
 }
@@ -24,19 +14,18 @@ export default function VerificationList({ pendingLawyers }: VerificationListPro
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
     const [loadingId, setLoadingId] = useState<string | null>(null);
 
-    // Función que maneja la acción de verificación
     const handleVerify = async (lawyerId: string, status: 'verified' | 'rejected') => {
         setLoadingId(lawyerId);
         setStatusMessage(null);
 
-        // ¡Esta es la línea que antes daba el error de 1 argumento!
-        const result = await verifyLawyer(lawyerId, status); 
+        const result = await verifyLawyer(lawyerId, status);
 
         if (result.success) {
             setStatusMessage(`Éxito: ${result.message}`);
         } else {
             setStatusMessage(`Error: ${result.message}`);
         }
+
         setLoadingId(null);
     };
 
@@ -55,7 +44,7 @@ export default function VerificationList({ pendingLawyers }: VerificationListPro
                     {statusMessage}
                 </div>
             )}
-            
+
             <ul className="space-y-4">
                 {pendingLawyers.map((lawyer) => (
                     <li key={lawyer.id} className="flex justify-between items-center p-4 bg-gray-800/50 rounded-lg border border-gray-700/50">
@@ -66,7 +55,6 @@ export default function VerificationList({ pendingLawyers }: VerificationListPro
                             <p className="text-sm text-gray-400 truncate">
                                 ID: {lawyer.id} | Email: {lawyer.email}
                             </p>
-                            {/* Aquí podrías añadir un enlace o botón para ver el documento PDF */}
                         </div>
 
                         <div className="flex space-x-2 ml-4">
@@ -78,6 +66,7 @@ export default function VerificationList({ pendingLawyers }: VerificationListPro
                             >
                                 {loadingId === lawyer.id ? '...' : <IoCheckmarkCircleOutline className="w-6 h-6" />}
                             </button>
+
                             <button
                                 onClick={() => handleVerify(lawyer.id, 'rejected')}
                                 disabled={loadingId === lawyer.id}
