@@ -39,7 +39,7 @@ const categories = [
 
 const locations = [
   'Bogotá D.C.', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena', 'Cúcuta',
-  'Bucaramanga', 'Pereira', 'Santa Marta', 'Manizales', 'Neiva'
+  'Bucaramanga', 'Pereira', 'Santa Marta', 'Manizales', 'Neiva', 'Otra parte de Colombia'
 ];
 
 export default function CasosPage() {

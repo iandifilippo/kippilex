@@ -66,8 +66,9 @@ export default function Header() {
   const toggleNotifications = () => { setNotificationsOpen(!notificationsOpen); setMenuOpen(false); };
 
   const displayName = profile?.nombre?.split(" ")[0] ||
-                      session?.user.user_metadata?.full_name?.split(" ")[0] ||
-                      "Usuario";
+                    session?.user.user_metadata?.full_name?.split(" ")[0] ||
+                    session?.user.email?.split('@')[0] ||
+                    "Usuario";
 
   return (
     <header className="z-30 mt-2 w-full md:mt-5">

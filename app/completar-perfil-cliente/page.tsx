@@ -6,7 +6,7 @@ import { createClient } from '@/utils/supabase/client';
 
 const COLOMBIAN_CITIES = [
   'Bogotá D.C.', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena', 'Cúcuta', 
-  'Bucaramanga', 'Pereira', 'Santa Marta', 'Manizales', 'Neiva'
+  'Bucaramanga', 'Pereira', 'Santa Marta', 'Manizales', 'Neiva', 'Otra parte de Colombia'
 ];
 
 // --- BLOQUE AÑADIDO: TÉRMINOS Y CONDICIONES (Contenido) ---
