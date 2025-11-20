@@ -1,6 +1,3 @@
-// RUTA: app/seleccionar-rol/page.tsx
-// ESTADO: CORREGIDO (Restaura iconos y usa 'upsert')
-
 "use client";
 
 import { useState } from 'react';
@@ -17,30 +14,32 @@ export default function SeleccionarRol() {
   const handleRoleSelection = async (role: 'abogado' | 'cliente') => {
     setLoading(true);
     setErrorMsg('');
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return; // El middleware ya protege esto
 
-    // --- CORRECCIÓN CLAVE: UPSERT ---
-    // Esto CREA el perfil si no existe y guarda el ROL.
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (!user || userError) { 
+        setErrorMsg('Error de autenticación. Por favor, intenta iniciar sesión de nuevo.');
+        setLoading(false);
+        console.error("No se pudo obtener el usuario:", userError);
+        return; 
+    } 
+
     const { error: upsertError } = await supabase
       .from('profiles')
       .upsert({
         id: user.id,
         role: role,
-        // Guardamos los datos de Google para usarlos en "Mi Perfil"
         nombre: user.user_metadata.full_name?.split(' ')[0] || user.user_metadata.name || '',
         apellido: user.user_metadata.full_name?.split(' ').slice(1).join(' ') || '',
-        avatar_url: user.user_metadata.avatar_url, // <-- Guardamos la foto de Google
+        avatar_url: user.user_metadata.avatar_url,
       });
 
     if (upsertError) {
-      setErrorMsg('Hubo un error al guardar tu elección. Por favor, intenta de nuevo.');
-      console.error(upsertError);
+      setErrorMsg('Hubo un error al guardar tu elección. Por favor, intenta de nuevo. Revisa los permisos (RLS) en Supabase.');
+      console.error("Error al hacer UPSERT:", upsertError);
       setLoading(false);
     } else {
-      // Redirección exitosa
       const destination = role === 'abogado' ? '/completar-perfil-abogado' : '/completar-perfil-cliente';
-      window.location.href = destination; // Forzar refresh
+      window.location.href = destination;
     }
   };
 
@@ -53,7 +52,7 @@ export default function SeleccionarRol() {
         transition={{ duration: 0.5 }}
       >
         <div className="mx-auto max-w-3xl pb-12 text-center">
-          <h1 className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,var(--color-gray-200),var(--color-indigo-200),var(--color-gray-50),var(--color-indigo-300),var(--color-gray-200))] bg-[length:200%_auto] bg-clip-text font-nacelle text-3xl font-semibold text-transparent md:text-4xl">
+          <h1 className="animate-gradient bg-[linear-gradient(to_right,var(--color-gray-200),var(--color-indigo-200),var(--color-gray-50),var(--color-indigo-300),var(--color-gray-200))] bg-size-[200%_auto] bg-clip-text font-nacelle text-3xl font-semibold text-transparent md:text-4xl">
             ¿Cómo deseas utilizar KippiLex?
           </h1>
           <p className="mt-4 text-lg text-indigo-200/65">
@@ -61,12 +60,11 @@ export default function SeleccionarRol() {
           </p>
         </div>
 
-        {/* --- ICONOS RESTAURADOS --- */}
         <div className="mx-auto grid max-w-sm gap-8 sm:max-w-none sm:grid-cols-2 lg:max-w-3xl">
           <button
             onClick={() => handleRoleSelection('abogado')}
             disabled={loading}
-            className="group relative flex flex-col items-center rounded-2xl bg-linear-to-br from-gray-900/50 via-gray-800/25 to-gray-900/50 p-8 text-center backdrop-blur-xs transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear_gradient(white_0_0)] hover:before:border-indigo-500/50 disabled:opacity-50"
+            className="group relative flex flex-col items-center rounded-2xl bg-linear-to-br from-gray-900/50 via-gray-800/25 to-gray-900/50 p-8 text-center backdrop-blur-xs transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,linear_gradient(white_0_0)] hover:before:border-indigo-500/50 disabled:opacity-50"
           >
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/20">
               <svg className="h-8 w-8 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
@@ -76,13 +74,14 @@ export default function SeleccionarRol() {
             <h3 className="mb-2 text-xl font-semibold text-gray-200">Soy Abogado</h3>
             <p className="text-indigo-200/65">Únete a nuestra red de profesionales y encuentra nuevos clientes.</p>
             <span className="btn-sm mt-6 rounded-full bg-linear-to-t from-indigo-600 to-indigo-500 text-white shadow-lg">
-              Registrarme como Abogado
+              {loading ? "Cargando..." : "Registrarme como Abogado"}
             </span>
           </button>
+          
           <button
             onClick={() => handleRoleSelection('cliente')}
             disabled={loading}
-            className="group relative flex flex-col items-center rounded-2xl bg-linear-to-br from-gray-900/50 via-gray-800/25 to-gray-900/50 p-8 text-center backdrop-blur-xs transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear_gradient(white_0_0)] hover:before:border-indigo-500/50 disabled:opacity-50"
+            className="group relative flex flex-col items-center rounded-2xl bg-linear-to-br from-gray-900/50 via-gray-800/25 to-gray-900/50 p-8 text-center backdrop-blur-xs transition-all duration-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,linear_gradient(white_0_0)] hover:before:border-indigo-500/50 disabled:opacity-50"
           >
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/20">
               <svg className="h-8 w-8 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
@@ -92,7 +91,7 @@ export default function SeleccionarRol() {
             <h3 className="mb-2 text-xl font-semibold text-gray-200">Necesito Abogado</h3>
             <p className="text-indigo-200/65">Conecta con profesionales verificados para resolver tus problemas legales.</p>
             <span className="btn-sm mt-6 rounded-full bg-linear-to-t from-indigo-600 to-indigo-500 text-white shadow-lg">
-              Buscar un Abogado
+              {loading ? "Cargando..." : "Buscar un Abogado"}
             </span>
           </button>
         </div>

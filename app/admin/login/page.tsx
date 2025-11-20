@@ -1,45 +1,44 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function AdminLogin() {
-  const [userId, setUserId] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [userId, setUserId] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-
-    // Llama a la Ruta de API que verifica las credenciales fijas
-    const response = await fetch('/api/admin-auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, password }),
-    });
-
-    if (response.ok) {
-      // Éxito: La API estableció la cookie. Redirige al Dashboard.
-      router.refresh();
-      router.push('/admin/dashboard');
-    } else {
-      // Fallo: Muestra el error de la API
-      const result = await response.json();
-      setError(result.message || 'Credenciales inválidas o acceso denegado.');
-    }
-  };
+  e.preventDefault();
+  setError("");
+  const response = await fetch("/api/admin-auth", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, password }),
+  });
+  if (response.ok) {
+    window.location.href = "/admin/dashboard";   // ← esta línea es la clave
+  } else {
+    const result = await response.json();
+    setError(result.message || "Credenciales inválidas");
+  }
+};
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-900">
-      <form onSubmit={handleLogin} className="p-8 bg-gray-800 rounded-lg shadow-xl w-full max-w-sm">
-        <h2 className="text-2xl font-bold mb-6 text-white">Acceso de Administrador Privado</h2>
-        
+      <form
+        onSubmit={handleLogin}
+        className="p-8 bg-gray-800 rounded-lg shadow-xl w-full max-w-sm"
+      >
+        <h2 className="text-2xl font-bold mb-6 text-white">
+          Acceso de Administrador Privado
+        </h2>
+
         {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
 
         <label className="block mb-4">
-          <span className="text-gray-300">ID de Usuario</span>
+          <span className="text-gray-300">Usuario</span>
           <input
             type="text"
             value={userId}
@@ -48,9 +47,9 @@ export default function AdminLogin() {
             required
           />
         </label>
-        
+
         <label className="block mb-6">
-          <span className="text-gray-300">Clave Secreta</span>
+          <span className="text-gray-300">Clave</span>
           <input
             type="password"
             value={password}
@@ -60,7 +59,10 @@ export default function AdminLogin() {
           />
         </label>
 
-        <button type="submit" className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">
+        <button
+          type="submit"
+          className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700"
+        >
           Entrar al Panel
         </button>
       </form>

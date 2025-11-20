@@ -1,38 +1,21 @@
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
+const ADMIN_USER = "admin1@kippilex.co";   // ← lo que tengas
+const ADMIN_PASS = "kippisito";   // ← lo que tengas
 
-    console.log('ADMIN_ENV_EXISTS:', !!process.env.ADMIN_USER, !!process.env.ADMIN_PASS);
-    console.log('BODY_RECEIVED:', JSON.stringify({ userId: body?.userId ? '***' : null }));
+export async function POST(request: Request) {
+  const { userId, password } = await request.json();
 
-    const userId = body?.userId;
-    const password = body?.password;
-
-    if (!userId || !password) {
-      return NextResponse.json({ message: "Body inválido" }, { status: 400 });
-    }
-
-    if (userId !== process.env.ADMIN_USER || password !== process.env.ADMIN_PASS) {
-      console.log('AUTH_FAIL: provided does not match env');
-      return NextResponse.json({ message: "Credenciales inválidas" }, { status: 401 });
-    }
-
-    const response = NextResponse.json({ message: "Autenticado" }, { status: 200 });
-    response.cookies.set({
-      name: "admin_session",
-      value: "authenticated",
-      httpOnly: true,
-      secure: true,
+  if (userId === ADMIN_USER && password === ADMIN_PASS) {
+    const response = NextResponse.json({ success: true });
+    response.cookies.set("admin_authed", "true", {
       path: "/",
-      maxAge: 60 * 60 * 12,
+      httpOnly: true,
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24 * 7,
     });
-
-    console.log('AUTH_OK -> cookie set');
     return response;
-  } catch (err) {
-    console.error('ADMIN_AUTH_ERROR', err);
-    return NextResponse.json({ message: "Error interno" }, { status: 500 });
   }
+
+  return NextResponse.json({ message: "Credenciales inválidas" }, { status: 401 });
 }

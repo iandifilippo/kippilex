@@ -1,14 +1,12 @@
-'use server'; // Asegúrate de que esto esté al inicio
+'use server';
 
 import { createSupabaseServerClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation"; // ¡IMPORTANTE!
+import { redirect } from "next/navigation";
 
 export async function signOutServer() {
-  // 💡 CORRECCIÓN: Ahora necesitamos 'await'
-  const supabase = await createSupabaseServerClient(); 
-  
-  // El await es crucial para que Supabase limpie las cookies ANTES de redirigir.
+  const supabase = await createSupabaseServerClient();
+
   await supabase.auth.signOut({ scope: 'global' });
-  
-  redirect('/'); 
+
+  return redirect('/');
 }
