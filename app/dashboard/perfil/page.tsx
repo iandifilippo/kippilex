@@ -47,7 +47,6 @@ export default function PerfilPage() {
   const [uploadingEspecialidad, setUploadingEspecialidad] = useState(false);
   const [uploadingFoto, setUploadingFoto] = useState(false);
 
-  // Estado local para el formulario (ESTO ES LO QUE ARREGLA TODO)
   const [formData, setFormData] = useState({
     nombre: '',
     apellido: '',
@@ -82,7 +81,6 @@ export default function PerfilPage() {
 
       setProfile(data);
 
-      // COPIAMOS LOS DATOS AL FORMULARIO LOCAL (ESTO ES CLAVE)
       setFormData({
         nombre: data.nombre || '',
         apellido: data.apellido || '',
@@ -95,7 +93,6 @@ export default function PerfilPage() {
     fetchData();
   }, [supabase, router]);
 
-  // CAMBIOS EN EL FORMULARIO LOCAL
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -130,7 +127,6 @@ export default function PerfilPage() {
     setTimeout(() => setMessage(''), 4000);
   };
 
-  // SUBIR FOTO DE PERFIL
   const handlePhotoChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !user) return;
 
@@ -169,7 +165,6 @@ export default function PerfilPage() {
     setUploadingFoto(false);
   };
 
-  // AÑADIR ESPECIALIDAD
   const handleAddEspecialidad = async (e: FormEvent) => {
     e.preventDefault();
     if (!selectedSub || !especialidadFile || !user) return;
@@ -226,13 +221,14 @@ export default function PerfilPage() {
     <div className="min-h-screen bg-gray-950 py-12 px-4">
       <div className="max-w-4xl mx-auto space-y-12">
         {/* Foto y nombre */}
-        <div className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 backdrop-blur-md rounded-3xl p-8 border border-purple-800/30 shadow-2xl">
+        {/* CORRECCIÓN: bg-gradient -> bg-linear */}
+        <div className="bg-linear-to-br from-purple-900/50 to-indigo-900/50 backdrop-blur-md rounded-3xl p-8 border border-purple-800/30 shadow-2xl">
           <div className="flex items-center gap-6">
             
-            {/* CORRECCIÓN APLICADA AQUÍ: Se agregaron clases para fijar tamaño y recortar */}
             <div className="relative shrink-0">
               <Image
-                src={profile.avatar_url || user.user_metadata?.avatar_url || '/images/default-avatar.png'}
+                // CORRECCIÓN: Agregado ? a user para evitar error 'possibly null'
+                src={profile.avatar_url || user?.user_metadata?.avatar_url || '/images/default-avatar.png'}
                 width={140}
                 height={140}
                 alt="Perfil"
@@ -286,7 +282,8 @@ export default function PerfilPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
-              <input type="email" value={user.email || ''} disabled className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-gray-500 cursor-not-allowed" />
+              {/* CORRECCIÓN: Agregado ? a user para evitar error 'possibly null' */}
+              <input type="email" value={user?.email || ''} disabled className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-gray-500 cursor-not-allowed" />
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
@@ -310,7 +307,8 @@ export default function PerfilPage() {
                   {message}
                 </span>
               )}
-              <button type="submit" disabled={uploadingFoto} className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg disabled:opacity-60 transition transform hover:scale-105">
+              {/* CORRECCIÓN: bg-gradient -> bg-linear */}
+              <button type="submit" disabled={uploadingFoto} className="px-8 py-3 bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg disabled:opacity-60 transition transform hover:scale-105">
                 {uploadingFoto ? 'Guardando...' : 'Guardar Cambios'}
               </button>
             </div>
@@ -330,7 +328,8 @@ export default function PerfilPage() {
 
             <div className="flex flex-wrap gap-3 mb-8">
               {profile.especialidades.length > 0 ? profile.especialidades.map((esp, i) => (
-                <span key={i} className="px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full text-white font-medium shadow-lg">
+                // CORRECCIÓN: bg-gradient -> bg-linear
+                <span key={i} className="px-5 py-3 bg-linear-to-r from-purple-600 to-indigo-600 rounded-full text-white font-medium shadow-lg">
                   {esp}
                 </span>
               )) : (
@@ -355,10 +354,12 @@ export default function PerfilPage() {
 
               <div>
                 <label className="block text-lg font-medium text-gray-300 mb-3">Documento de respaldo (PDF)</label>
-                <input type="file" accept=".pdf" onChange={(e) => e.target.files && setEspecialidadFile(e.target.files[0])} className="w-full px-5 py-4 bg-gray-800 border border-gray-700 rounded-xl text-white file:mr-5 file:py-3 file:px-6 file:rounded-full file:border-0 file:bg-gradient-to-r file:from-purple-600 file:to-indigo-600 file:text-white hover:file:from-purple-700 hover:file:to-indigo-700" required />
+                {/* CORRECCIÓN: file:bg-gradient -> file:bg-linear */}
+                <input type="file" accept=".pdf" onChange={(e) => e.target.files && setEspecialidadFile(e.target.files[0])} className="w-full px-5 py-4 bg-gray-800 border border-gray-700 rounded-xl text-white file:mr-5 file:py-3 file:px-6 file:rounded-full file:border-0 file:bg-linear-to-r file:from-purple-600 file:to-indigo-600 file:text-white hover:file:from-purple-700 hover:file:to-indigo-700" required />
               </div>
 
-              <button type="submit" disabled={uploadingEspecialidad} className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold text-xl rounded-xl shadow-2xl transition transform hover:scale-105 disabled:opacity-70">
+              {/* CORRECCIÓN: bg-gradient -> bg-linear */}
+              <button type="submit" disabled={uploadingEspecialidad} className="w-full py-4 bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold text-xl rounded-xl shadow-2xl transition transform hover:scale-105 disabled:opacity-70">
                 {uploadingEspecialidad ? 'Enviando...' : 'Enviar nueva especialidad a verificación'}
               </button>
             </form>
