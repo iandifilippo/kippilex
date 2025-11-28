@@ -1,15 +1,19 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react'; // <--- 1. AGREGAMOS 'use'
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Save, MapPin, Calendar } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar } from 'lucide-react';
 
-// Lista básica de departamentos (luego la haremos completa)
+// Lista básica de departamentos
 const DEPARTAMENTOS = ["Bogotá D.C.", "Antioquia", "Valle del Cauca", "Cundinamarca", "Atlántico"];
 
-export default function ResumenCasoPage({ params }: { params: { id: string } }) {
+// <--- 2. CAMBIAMOS EL TIPO A PROMISE
+export default function ResumenCasoPage({ params }: { params: Promise<{ id: string }> }) {
+  // <--- 3. DESEMPAQUETAMOS EL ID USANDO EL HOOK 'use'
+  const { id } = use(params);
+
   const router = useRouter();
   const supabase = createClient();
   const [loading, setLoading] = useState(true);
@@ -30,7 +34,7 @@ export default function ResumenCasoPage({ params }: { params: { id: string } }) 
       const { data, error } = await supabase
         .from('casos')
         .select('*')
-        .eq('id', params.id)
+        .eq('id', id) // <--- USAMOS 'id' DIRECTAMENTE (YA NO params.id)
         .single();
 
       if (error) {
@@ -51,7 +55,7 @@ export default function ResumenCasoPage({ params }: { params: { id: string } }) 
       setLoading(false);
     };
     fetchCaso();
-  }, [params.id, router, supabase]);
+  }, [id, router, supabase]); // <--- ACTUALIZAMOS LA DEPENDENCIA A 'id'
 
   const handleUpdate = async (publicar: boolean) => {
     setPublishing(true);
@@ -59,16 +63,16 @@ export default function ResumenCasoPage({ params }: { params: { id: string } }) 
       .from('casos')
       .update({
         ...formData,
-        estado: publicar ? 'abierto' : 'borrador' // Si publica es 'abierto', si solo guarda es 'borrador'
+        estado: publicar ? 'abierto' : 'borrador'
       })
-      .eq('id', params.id);
+      .eq('id', id); // <--- USAMOS 'id' DIRECTAMENTE
 
     if (error) {
       alert("Error al actualizar");
       setPublishing(false);
     } else {
       if (publicar) {
-        router.push('/dashboard/mis-casos'); // O a la vista del caso
+        router.push('/dashboard/mis-casos');
       } else {
         alert("Borrador guardado");
         setPublishing(false);
@@ -169,7 +173,7 @@ export default function ResumenCasoPage({ params }: { params: { id: string } }) 
             </Button>
             
             <Button 
-              onClick={() => handleUpdate(true)} // TRUE = Publicar
+              onClick={() => handleUpdate(true)} 
               disabled={publishing}
               className="flex-[2] bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-6 text-lg shadow-lg"
             >
