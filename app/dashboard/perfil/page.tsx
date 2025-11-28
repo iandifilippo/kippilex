@@ -124,8 +124,8 @@ export default function PerfilPage() {
       setMessage('¡Perfil actualizado con éxito!');
       setProfile(prev => prev ? { ...prev, ...formData } : null);
 
-  setTimeout(() => setMessage(''), 4000);
-}
+      setTimeout(() => setMessage(''), 4000);
+    }
     setUploadingFoto(false);
     setTimeout(() => setMessage(''), 4000);
   };
@@ -228,13 +228,15 @@ export default function PerfilPage() {
         {/* Foto y nombre */}
         <div className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 backdrop-blur-md rounded-3xl p-8 border border-purple-800/30 shadow-2xl">
           <div className="flex items-center gap-6">
-            <div className="relative">
+            
+            {/* CORRECCIÓN APLICADA AQUÍ: Se agregaron clases para fijar tamaño y recortar */}
+            <div className="relative shrink-0">
               <Image
                 src={profile.avatar_url || user.user_metadata?.avatar_url || '/images/default-avatar.png'}
                 width={140}
                 height={140}
                 alt="Perfil"
-                className="rounded-full border-4 border-purple-500 shadow-2xl"
+                className="rounded-full border-4 border-purple-500 shadow-2xl object-cover w-[140px] h-[140px]"
               />
               <label className="absolute bottom-2 right-2 cursor-pointer">
                 <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} disabled={uploadingFoto} />
@@ -246,6 +248,7 @@ export default function PerfilPage() {
                 </div>
               </label>
             </div>
+            
             <div>
               <h1 className="text-4xl font-bold text-white">
                 {profile.nombre || 'Usuario'} {profile.apellido || ''}
@@ -273,11 +276,11 @@ export default function PerfilPage() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Nombre</label>
-                <input type="text" name="nombre" value={formData.nombre} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition" placeholder="Ian" />
+                <input type="text" name="nombre" value={formData.nombre} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition" placeholder="" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Apellido</label>
-                <input type="text" name="apellido" value={formData.apellido} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition" placeholder="Di Filippo Espeleta" />
+                <input type="text" name="apellido" value={formData.apellido} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition" placeholder="" />
               </div>
             </div>
 
@@ -289,7 +292,7 @@ export default function PerfilPage() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Número WhatsApp</label>
-                <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition" placeholder="+57 310 426 8181" />
+                <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition" placeholder="" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Género</label>
@@ -297,8 +300,6 @@ export default function PerfilPage() {
                   <option value="">Seleccionar...</option>
                   <option value="masculino">Masculino</option>
                   <option value="femenino">Femenino</option>
-                  <option value="otro">Otro</option>
-                  <option value="no_especificar">Prefiero no especificar</option>
                 </select>
               </div>
             </div>

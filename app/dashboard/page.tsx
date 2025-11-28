@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/utils/supabase/server';
 
+
 interface StatsCardProps {
   title: string;
   value: string | number;
@@ -91,7 +92,7 @@ export default async function DashboardPage() {
                 🚨 La opción de ofertar está deshabilitada hasta completar la verificación.
               </span>
             ) : (
-              <a href="#0" className="btn bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg">
+              <a href="/casos" className="btn bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg">
                 Ver Ofertas
               </a>
             )}

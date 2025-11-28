@@ -1,4 +1,4 @@
-// components/ui/header.tsx - FUNCIONA PERFECTO EN LOCAL Y PRODUCCIÓN + 0 WARNINGS
+// components/ui/header.tsx
 "use client";
 
 import Link from "next/link";
@@ -79,7 +79,8 @@ export default function Header() {
           {/* Logo */}
           <div className="flex flex-1 items-center">
             <motion.div whileHover={{ scale: 1.2 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
-              <Link href="/" aria-label="KippiLex">
+              {/* CAMBIO AQUÍ: Si hay sesión va al dashboard, si no al home */}
+              <Link href={session ? "/dashboard" : "/"} aria-label="KippiLex">
                 <Image src="/images/kippilexlogo.png" width={48} height={48} alt="KippiLex Logo" priority />
               </Link>
             </motion.div>
@@ -130,7 +131,7 @@ export default function Header() {
               </div>
             ) : (
               <div className="flex items-center gap-4">
-                {/* Ingresar - SOLO CAMBIÉ bg-[length:...] → bg-size-[...] y bg-[bottom] → bg-bottom */}
+                {/* Ingresar */}
                 <Link
                   href="/signin"
                   className="btn-sm relative bg-linear-to-b from-gray-800 to-gray-800/60 bg-size-[100%_100%] bg-bottom py-[5px] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border_box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear_gradient(white_0_0)] hover:bg-size-[100%_150%]"
@@ -138,7 +139,7 @@ export default function Header() {
                   Ingresar
                 </Link>
 
-                {/* Registrarse - SOLO CAMBIÉ bg-[length:...] → bg-size-[...] y bg-[bottom] → bg-bottom */}
+                {/* Registrarse */}
                 <Link
                   href="/signup"
                   className="btn-sm bg-linear-to-t from-indigo-600 to-indigo-500 bg-size-[100%_100%] bg-bottom py-[5px] text-white shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.16)] hover:bg-size-[100%_150%]"
